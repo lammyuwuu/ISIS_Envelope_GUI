@@ -644,22 +644,24 @@ def generate_orbit_plot(twiss_data, title_suffix="", overlay_data=None, xlimits=
     sigma_x = np.sqrt(betx_array*epsilon)
     sigma_y = np.sqrt(bety_array*epsilon)
 
-    env_plus_x = twiss_data['s']  + sigma_x
-    env_minus_x = twiss_data['s'] - sigma_x
-    st.write(env_plus_x.head())
-    st.write(env_minus_x.head())
-    env_plus_y = twiss_data['x'] + sigma_y
-    env_minus_y = twiss_data['x'] - sigma_y
+    env_plus_x = twiss_data['x']  + sigma_x
+    env_minus_x = twiss_data['x'] - sigma_x
+
+    env_plus_y = twiss_data['s'] + sigma_y
+    env_minus_y = twiss_data['s'] - sigma_y
 
     # Row 1: horizontal orbit
     fig.add_trace(go.Scatter(x=twiss_data['s'], y=twiss_data['x'] *1e3, mode='lines', name='Horizontal Closed Orbit', line=dict(color='black')), row=1, col=1)
     # Row 1: Envelope
     fig.add_trace(go.Scatter(x=twiss_data['s'], y=env_plus_x*1e3, mode='lines', name='Envelope x+', line=dict(color='orange')), row=1, col=1)
     fig.add_trace(go.Scatter(x=twiss_data['s'], y=env_minus_x*1e3, mode='lines', name='Envelope x-', line=dict(color='orange')), row=1, col=1)
-
     # Row 2: vertical orbit (with optional overlay)
     fig.add_trace(go.Scatter(x=twiss_data['s'], y=twiss_data['y'] *1e3, mode='lines', name='Vertical Closed Orbit', line=dict(color='black')), row=2, col=1)
-    
+    # Row 2: Envelope
+    fig.add_trace(go.Scatter(x=twiss_data['s'], y=env_plus_y*1e3, mode='lines', name='Envelope x+', line=dict(color='orange')), row=2, col=1)
+    fig.add_trace(go.Scatter(x=twiss_data['s'], y=env_minus_y*1e3, mode='lines', name='Envelope x-', line=dict(color='orange')), row=2, col=1)
+
+
     if overlay_data is not None:
         fig.add_trace(go.Scatter(
             x=overlay_data['s'],
@@ -667,8 +669,7 @@ def generate_orbit_plot(twiss_data, title_suffix="", overlay_data=None, xlimits=
             mode='markers',
             name='Measured vertical orbit',
             marker=dict(size=8, color='red')
-        ), row=3, col=1)
-    #Row 2: Envelope
+        ), row=2, col=1)
 
     # Layout
     fig.update_layout(title=plot_title, height=800, width=1000,
