@@ -1,0 +1,23 @@
+Metadata-Version: 2.1
+Name: dohq-tfs
+Version: 1.1.1
+Summary: Microsoft TFS Python Library (TFS API Python client) that can work with TFS workflow and workitems.
+Home-page: https://devopshq.github.io/tfs/
+Download-URL: https://github.com/devopshq/tfs.git
+Author: Alexey Burov
+Author-email: allburov@gmail.com
+License: MIT
+Keywords: Microsoft,TFS,library,api,client,utility,routines,workitem,changesets,TFS2015
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python :: 3.4
+License-File: LICENSE
+Requires-Dist: requests
+Requires-Dist: requests-ntlm
+Requires-Dist: six
+
+You can see detailed user manual here: https://devopshq.github.io/tfs/

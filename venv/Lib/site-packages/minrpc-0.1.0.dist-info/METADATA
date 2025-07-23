@@ -1,0 +1,174 @@
+Metadata-Version: 2.1
+Name: minrpc
+Version: 0.1.0
+Summary: Minimalistic RPC utility (DO NOT USE!)
+Home-page: https://github.com/hibtc/minrpc
+Author: Thomas Gläßle
+Author-email: t_glaessle@gmx.de
+License: GPLv3+
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Topic :: Software Development :: Libraries
+Requires-Python: >=2.7
+Description-Content-Type: text/x-rst
+
+minrpc
+------
+
+|Version| |License| |Python| |Build| |Coverage|
+
+Minimalistic RPC utility.
+
+Please do not use. This package is only used within cpymad and pytao.
+
+
+.. |Build| image::      https://api.travis-ci.org/hibtc/minrpc.svg?branch=master
+   :target:             https://travis-ci.org/hibtc/minrpc
+   :alt:                Build Status
+
+.. |Coverage| image::   https://coveralls.io/repos/hibtc/minrpc/badge.svg?branch=master
+   :target:             https://coveralls.io/r/hibtc/minrpc
+   :alt:                Coverage
+
+.. |Version| image::    https://img.shields.io/pypi/v/minrpc.svg
+   :target:             https://pypi.python.org/pypi/minrpc/
+   :alt:                Latest Version
+
+.. |License| image::    http://img.shields.io/pypi/l/minrpc.svg
+   :target:             https://github.com/hibtc/minrpc/blob/master/COPYING.GPLv3.txt
+   :alt:                License
+
+.. |Python| image::     http://img.shields.io/pypi/pyversions/minrpc.svg
+   :target:             https://pypi.python.org/pypi/minrpc#downloads
+   :alt:                Supported Python versions
+
+Copying
+~~~~~~~
+
+Copyright 2016-2018 HIT Betriebs GmbH
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+For a full text version of the license, see ``COPYING.GPLv3.txt``.
+
+Changelog
+~~~~~~~~~
+
+(dates are in the form ``DD.MM.YYYY``)
+
+0.1.0
+=====
+Date: 28.10.2020
+
+- fix UnpicklingError: pickle data was truncated
+  see: https://github.com/hibtc/cpymad/issues/72
+
+
+0.0.11
+======
+Date: 13.04.2019
+
+- remove obsolete OrderedDict export
+- simplifications in build/setup scripts
+- remove py33 tests
+
+
+0.0.10
+======
+Date: 18.10.2018
+
+Pure maintenance release with continuous integration improvements:
+
+- automatically upload release to PyPI
+- add automatic style and sanity checks
+- fix some style issues
+- cleanup in .travis.yml
+
+
+0.0.9
+=====
+Date: 18.10.2018
+
+- add ``__bool__`` for ``RemoteModule`` indicating whether the connection has
+  been closed
+- return ``self`` from ``ChangeDirectory.__enter__``
+- wait for subprocess completion in ``Client.close()``
+
+
+0.0.8
+=====
+Date: 30.08.2018
+
+- improve error prevention during connection shutdown
+
+
+0.0.7
+=====
+Date: 11.06.2018
+
+- simplify module access, backward incompatible!!
+- add overridable ``Client._communicate`` method
+
+
+0.0.6
+=====
+Date: 30.11.2017
+
+- improve error checking before/after requests
+- catch more exceptions in __del__
+- provide copyright notice as unicode
+
+
+0.0.5
+=====
+Date: 13.11.2017
+
+- allow locking during request (for thread safety)
+
+
+0.0.4
+=====
+Date: 12.07.2017
+
+- remember error state of connection (whether RemoteProcessCrashed was raised)
+- export an OrderedDict type that preserves insertion order
+
+
+0.0.3
+=====
+Date: 24.09.2016
+
+- fix raised exception type in client
+
+
+0.0.2
+=====
+Date: 19.09.2016
+
+- fix problem with exception handling
+
+
+0.0.1
+=====
+Date: 19.09.2016
+
+- copied from cpymad 0.14.3
+
+
