@@ -647,8 +647,8 @@ def generate_orbit_plot(twiss_data, title_suffix="", overlay_data=None, xlimits=
     env_plus_x = twiss_data['x']  + sigma_x
     env_minus_x = twiss_data['x'] - sigma_x
 
-    env_plus_y = twiss_data['s'] + sigma_y
-    env_minus_y = twiss_data['s'] - sigma_y
+    env_plus_y = twiss_data['y'] + sigma_y
+    env_minus_y = twiss_data['y'] - sigma_y
 
     # Row 1: horizontal orbit
     fig.add_trace(go.Scatter(x=twiss_data['s'], y=twiss_data['x'] *1e3, mode='lines', name='Horizontal Closed Orbit', line=dict(color='black')), row=1, col=1)
