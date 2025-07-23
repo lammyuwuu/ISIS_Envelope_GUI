@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
+import pandas as pd
+from datetime import datetime
 
 # Import necessary classes and functions
 from ISIS_tune_control_functions import *
@@ -19,8 +21,6 @@ madx.call(file=lattice_folder+'ISIS.elements')
 madx.call(file=lattice_folder+'ISIS.sequence')
 cpymad_check_and_use_sequence(madx, cpymad_logfile, sequence_name)
 
-import pandas as pd
-from datetime import datetime
 
 class cpymad_ErrorTableBuilder:
     def __init__(self, twiss_df):
@@ -242,6 +242,7 @@ class cpymad_ErrorTableBuilder:
             else:
                 self.add_quadrupole_misalignment(row["name"], "DY", dy)
                 self.add_quadrupole_misalignment(row["name"], "DPSI", dpsi)
+
 class BPMFitResultsLoader:
     def __init__(self, filepath, reverse_co=False):
         self.filepath = filepath
@@ -378,6 +379,7 @@ def cpymad_apply_and_check_error_table(madx_instance, error_file, original_df, a
     # Compare with tolerance
     pd.testing.assert_frame_equal(madx_sorted, original_sorted, check_dtype=False, rtol=rtol, atol=atol)
     return True
+
 def cpymad_apply_error_table(madx_instance, error_table_file):
     """
     Apply a MAD-X error table file using madx_instance.input().
@@ -616,31 +618,25 @@ def apply_misalignments(madx, twiss_input, misalignments_file):
 
     cpymad_apply_and_check_error_table(madx, error_file, error_table_builder.error_df)
     return cpymad_madx_twiss_nocheck(madx, cpymad_logfile, sequence_name)
+
 def generate_orbit_plot(twiss_data, title_suffix="", overlay_data=None, xlimits=None):
     qx = madx.table.summ.q1[0]
     qy = madx.table.summ.q2[0]
     plot_title = f"{sequence_name} Q1={qx:.3f}, Q2={qy:.3f} {title_suffix}"
 
     fig = make_subplots(
-        rows=3, cols=1,
+        rows=2, cols=1,
         shared_xaxes=True,
         vertical_spacing=0.02,
-        row_heights=[0.3, 0.25, 0.25],
-        specs=[[{"secondary_y": True}],
-               [{"type": "scatter"}],
+        row_heights=[0.25, 0.25],
+        specs=[[{"type": "scatter"}],
                [{"type": "scatter"}]]
     )
 
-    # Row 1: optics
-    fig.add_trace(go.Scatter(x=twiss_data['s'], y=twiss_data['betx'], mode='lines', name='βₓ', line=dict(color='blue')), row=1, col=1, secondary_y=False)
-    fig.add_trace(go.Scatter(x=twiss_data['s'], y=twiss_data['bety'], mode='lines', name='βᵧ', line=dict(color='red')), row=1, col=1, secondary_y=False)
-    fig.add_trace(go.Scatter(x=twiss_data['s'], y=twiss_data['dx'], mode='lines', name='Dₓ', line=dict(color='green')), row=1, col=1, secondary_y=True)
-    fig.add_trace(go.Scatter(x=twiss_data['s'], y=twiss_data['dy'], mode='lines', name='Dᵧ', line=dict(color='purple')), row=1, col=1, secondary_y=True)
-
-    # Row 2: horizontal orbit
+    # Row 1: horizontal orbit
     fig.add_trace(go.Scatter(x=twiss_data['s'], y=twiss_data['x'] * 1e3, mode='lines', name='Horizontal Closed Orbit', line=dict(color='black')), row=2, col=1)
 
-    # Row 3: vertical orbit (with optional overlay)
+    # Row 2: vertical orbit (with optional overlay)
     fig.add_trace(go.Scatter(x=twiss_data['s'], y=twiss_data['y'] * 1e3, mode='lines', name='Vertical Closed Orbit', line=dict(color='black')), row=3, col=1)
     if overlay_data is not None:
         fig.add_trace(go.Scatter(
@@ -656,11 +652,9 @@ def generate_orbit_plot(twiss_data, title_suffix="", overlay_data=None, xlimits=
                       legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
                       template="plotly_white")
 
-    fig.update_yaxes(title_text='βₓ, βᵧ [m]', row=1, col=1, secondary_y=False)
-    fig.update_yaxes(title_text='Dₓ, Dᵧ [m]', row=1, col=1, secondary_y=True)
-    fig.update_yaxes(title_text='x [mm]', row=2, col=1)
-    fig.update_yaxes(title_text='y [mm]', row=3, col=1)
-    fig.update_xaxes(title_text='s [m]', row=3, col=1)
+    fig.update_yaxes(title_text='x [mm]', row=1, col=1)
+    fig.update_yaxes(title_text='y [mm]', row=2, col=1)
+    fig.update_xaxes(title_text='s [m]', row=2, col=1)
     if xlimits is not None:
         fig.update_xaxes(range=xlimits)
 
@@ -695,8 +689,6 @@ with open("ukri-stfc-square-logo.png", "rb") as f:
         unsafe_allow_html=True)
 
 # Input fields for corrector settings
-
-
 st.sidebar.header("Corrector Settings")
 
 # Corrector input: Default current values
@@ -738,13 +730,20 @@ v_corrector_currents_minus_0p4ms = {
 #TODO: Remove all corrections
 #TODO: Error table: choose file to edit 
 
-# Sidebar checkboxes
-apply_corr = st.sidebar.checkbox("Apply Vertical Correctors")
-apply_mis = st.sidebar.checkbox("Apply Misalignments")
+# # Sidebar checkboxes
+# apply_corr = st.sidebar.checkbox("Apply Vertical Correctors")
+# apply_mis = st.sidebar.checkbox("Apply Misalignments")
+
+# dipole correctors (change orbit)
+apply_hd = st.sidebar.checkbox("Apply Horizontal Dipole")
+apply_vd = st.sidebar.checkbox("Apply Vertical Dipole")    ### <--- TO BE CONTINUED
+# trim quads (change tune - focusing)
+apply_tunes = st.sidebar.checkbox("Apply Tunes")
+apply_harmonics = st.sidebar.checkbox("Apply Harmonics") 
 
 uploaded_mis_file = None
-if apply_mis:
-    uploaded_mis_file = st.sidebar.file_uploader("Upload misalignments file (.txt)", type=["txt"])
+# if apply_mis:
+#     uploaded_mis_file = st.sidebar.file_uploader("Upload misalignments file (.txt)", type=["txt"])
 
 uploaded_bpm_file = st.sidebar.file_uploader("Upload BPM fit results (.txt)", type=["txt"])
 
@@ -768,69 +767,72 @@ clist_file_y = 'clist_y_.dat'
 mlist_file_x = 'mlist_x_.dat'
 mlist_file_y = 'mlist_y_.dat'
 
-if apply_corr:
-    twiss_current = apply_correctors(madx, twiss_current, v_corrector_currents_minus_0p4ms, max_E, cycle_time_slider)
 
-if apply_mis and uploaded_mis_file:
-    twiss_current = apply_misalignments(madx, twiss_current, uploaded_mis_file)
-    v_corrector_currents_off = {
-    'r0vd1_kick': 0,
-    'r2vd1_kick': 0,
-    'r3vd1_kick': 0,
-    'r4vd1_kick': 0,
-    'r5vd1_kick': 0,
-    'r7vd1_kick': 0,
-    'r9vd1_kick': 0}
+## potentially useful
+# if apply_corr:
+#     twiss_current = apply_correctors(madx, twiss_current, v_corrector_currents_minus_0p4ms, max_E, cycle_time_slider)
 
-    #calculate IBO corrections 
-    cpymad_set_correctors(madx, cpymad_logfile, v_corrector_currents_off, max_E, cycle_time)
-    madx.command.usekick(sequence=sequence_name, status="on", pattern="^R.*VD.*")
-    madx.command.usemonitor(sequence=sequence_name, status="on", class_="monitor")
-    bare_madx_twiss_file = sequence_name +'_madx_twiss_bare.tfs'
-    madx.input('set, format="12.12f"')
-    madx.input('select, flag=twiss, column=keyword, name, s, l, betx, alfx, mux, bety, alfy, muy, x, px, y, py, t, pt, dx, dpx, dy, dpy, wx, phix, dmux, wy, phiy, dmuy, ddx, ddpx, ddy, ddpy, r11, r12, r21, r22, energy, angle, k0l, k0sl, k1l, k1sl, k2l, k2sl, k3l, k3sl, k4l, k4sl, k5l, k5sl, k6l, k6sl, k7l, k7sl, k8l, k8sl, k9l, k9sl, k10l, k10sl, ksi, hkick, vkick, tilt, e1, e2, h1, h2, hgap, fint, fintx, volt, lag, freq, harmon, slot_id, assembly_id, mech_sep, kmax, kmin, calib, polarity, alfa, beta11, beta12, beta13, beta21, beta22, beta23, beta31, beta32, beta33, alfa11, alfa12, alfa13, alfa21, alfa22, disp1, disp2, disp3, disp4')
-    twiss_bare = madx.twiss(sequence=sequence_name, file=bare_madx_twiss_file, table='bare').dframe()
-    madx.command.correct(model='bare',sequence=sequence_name, plane="y", flag="ring", error=1e-7, mode='svd', cond=1, corzero=1, monerror=0, monscale=0, clist=clist_file_y, mlist=mlist_file_y)   
-    corrected_madx_twiss_file = sequence_name +'_madx_twiss_corrected_.tfs'
-    madx.input('set, format="12.12f"')
-    madx.input('select, flag=twiss, column=keyword, name, s, l, betx, alfx, mux, bety, alfy, muy, x, px, y, py, t, pt, dx, dpx, dy, dpy, wx, phix, dmux, wy, phiy, dmuy, ddx, ddpx, ddy, ddpy, r11, r12, r21, r22, energy, angle, k0l, k0sl, k1l, k1sl, k2l, k2sl, k3l, k3sl, k4l, k4sl, k5l, k5sl, k6l, k6sl, k7l, k7sl, k8l, k8sl, k9l, k9sl, k10l, k10sl, ksi, hkick, vkick, tilt, e1, e2, h1, h2, hgap, fint, fintx, volt, lag, freq, harmon, slot_id, assembly_id, mech_sep, kmax, kmin, calib, polarity, alfa, beta11, beta12, beta13, beta21, beta22, beta23, beta31, beta32, beta33, alfa11, alfa12, alfa13, alfa21, alfa22, disp1, disp2, disp3, disp4')
-    twiss_corrected = madx.twiss(sequence=sequence_name, file=corrected_madx_twiss_file, table='corrected').dframe()
+# if apply_mis and uploaded_mis_file:
+#     twiss_current = apply_misalignments(madx, twiss_current, uploaded_mis_file)
+#     v_corrector_currents_off = {
+#     'r0vd1_kick': 0,
+#     'r2vd1_kick': 0,
+#     'r3vd1_kick': 0,
+#     'r4vd1_kick': 0,
+#     'r5vd1_kick': 0,
+#     'r7vd1_kick': 0,
+#     'r9vd1_kick': 0}
+
+#     #calculate IBO corrections 
+#     cpymad_set_correctors(madx, cpymad_logfile, v_corrector_currents_off, max_E, cycle_time)
+#     madx.command.usekick(sequence=sequence_name, status="on", pattern="^R.*VD.*")
+#     madx.command.usemonitor(sequence=sequence_name, status="on", class_="monitor")
+#     bare_madx_twiss_file = sequence_name +'_madx_twiss_bare.tfs'
+#     madx.input('set, format="12.12f"')
+#     madx.input('select, flag=twiss, column=keyword, name, s, l, betx, alfx, mux, bety, alfy, muy, x, px, y, py, t, pt, dx, dpx, dy, dpy, wx, phix, dmux, wy, phiy, dmuy, ddx, ddpx, ddy, ddpy, r11, r12, r21, r22, energy, angle, k0l, k0sl, k1l, k1sl, k2l, k2sl, k3l, k3sl, k4l, k4sl, k5l, k5sl, k6l, k6sl, k7l, k7sl, k8l, k8sl, k9l, k9sl, k10l, k10sl, ksi, hkick, vkick, tilt, e1, e2, h1, h2, hgap, fint, fintx, volt, lag, freq, harmon, slot_id, assembly_id, mech_sep, kmax, kmin, calib, polarity, alfa, beta11, beta12, beta13, beta21, beta22, beta23, beta31, beta32, beta33, alfa11, alfa12, alfa13, alfa21, alfa22, disp1, disp2, disp3, disp4')
+#     twiss_bare = madx.twiss(sequence=sequence_name, file=bare_madx_twiss_file, table='bare').dframe()
+#     madx.command.correct(model='bare',sequence=sequence_name, plane="y", flag="ring", error=1e-7, mode='svd', cond=1, corzero=1, monerror=0, monscale=0, clist=clist_file_y, mlist=mlist_file_y)   
+#     corrected_madx_twiss_file = sequence_name +'_madx_twiss_corrected_.tfs'
+#     madx.input('set, format="12.12f"')
+#     madx.input('select, flag=twiss, column=keyword, name, s, l, betx, alfx, mux, bety, alfy, muy, x, px, y, py, t, pt, dx, dpx, dy, dpy, wx, phix, dmux, wy, phiy, dmuy, ddx, ddpx, ddy, ddpy, r11, r12, r21, r22, energy, angle, k0l, k0sl, k1l, k1sl, k2l, k2sl, k3l, k3sl, k4l, k4sl, k5l, k5sl, k6l, k6sl, k7l, k7sl, k8l, k8sl, k9l, k9sl, k10l, k10sl, ksi, hkick, vkick, tilt, e1, e2, h1, h2, hgap, fint, fintx, volt, lag, freq, harmon, slot_id, assembly_id, mech_sep, kmax, kmin, calib, polarity, alfa, beta11, beta12, beta13, beta21, beta22, beta23, beta31, beta32, beta33, alfa11, alfa12, alfa13, alfa21, alfa22, disp1, disp2, disp3, disp4')
+#     twiss_corrected = madx.twiss(sequence=sequence_name, file=corrected_madx_twiss_file, table='corrected').dframe()
     
-    #plotting of IBO vs corrections
-    fig4 = go.Figure()
+#     #plotting of IBO vs corrections
+#     fig4 = go.Figure()
 
-    fig4.add_trace(go.Scatter(
-        x=twiss_current.s,
-        y=twiss_current.y * 1e3,
-        mode='lines',
-        name='Inferred bare orbit (IBO) from misalignments'
-    ))
+#     fig4.add_trace(go.Scatter(
+#         x=twiss_current.s,
+#         y=twiss_current.y * 1e3,
+#         mode='lines',
+#         name='Inferred bare orbit (IBO) from misalignments'
+#     ))
 
-    fig4.add_trace(go.Scatter(
-        x=twiss_corrected.s,
-        y=twiss_corrected.y * 1e3,
-        mode='lines',
-        name='IBO + MAD-X Correction'
-    ))
+#     fig4.add_trace(go.Scatter(
+#         x=twiss_corrected.s,
+#         y=twiss_corrected.y * 1e3,
+#         mode='lines',
+#         name='IBO + MAD-X Correction'
+#     ))
 
-    fig4.update_layout(
-        title='Comparison of bare orbit inferred from survey misalignments, and corrected orbit',
-        xaxis_title='S [m]',
-        yaxis_title='y [mm]',
-        legend=dict(title=None),
-        template='simple_white',
-        margin=dict(t=60, b=40, l=60, r=20),
-    )
-    fig4.update_xaxes(showgrid=True, gridwidth=0.5, gridcolor='lightgrey')
-    fig4.update_yaxes(showgrid=True, gridwidth=0.5, gridcolor='lightgrey')
+#     fig4.update_layout(
+#         title='Comparison of bare orbit inferred from survey misalignments, and corrected orbit',
+#         xaxis_title='S [m]',
+#         yaxis_title='y [mm]',
+#         legend=dict(title=None),
+#         template='simple_white',
+#         margin=dict(t=60, b=40, l=60, r=20),
+#     )
+#     fig4.update_xaxes(showgrid=True, gridwidth=0.5, gridcolor='lightgrey')
+#     fig4.update_yaxes(showgrid=True, gridwidth=0.5, gridcolor='lightgrey')
 
-    st.plotly_chart(fig4)
+#     st.plotly_chart(fig4)
 
-# Load overlay BPM if provided
-bpm_overlay = None
-if uploaded_bpm_file:
-    bpm_bare = BPMFitResultsLoader(uploaded_bpm_file, reverse_co=False)
-    bpm_overlay = bpm_bare.get_co_data('V', twiss_0)
+# # Load overlay BPM if provided
+# bpm_overlay = None
+# if uploaded_bpm_file:
+#     bpm_bare = BPMFitResultsLoader(uploaded_bpm_file, reverse_co=False)
+#     bpm_overlay = bpm_bare.get_co_data('V', twiss_0)
 
 # Generate the main plot
-generate_orbit_plot(twiss_current, title_suffix="", overlay_data=bpm_overlay, xlimits=xlimits)
+# generate_orbit_plot(twiss_current, title_suffix="", overlay_data=bpm_overlay, xlimits=xlimits)
+generate_orbit_plot(twiss_current, title_suffix="", xlimits=xlimits)
