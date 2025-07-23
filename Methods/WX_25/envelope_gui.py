@@ -649,6 +649,7 @@ def generate_orbit_plot(twiss_data, title_suffix="", overlay_data=None, xlimits=
 
     env_plus_y = twiss_data['y'] + sigma_y
     env_minus_y = twiss_data['y'] - sigma_y
+    st.write(twiss_data['x'].head())
 
     # Row 1: horizontal orbit
     fig.add_trace(go.Scatter(x=twiss_data['s'], y=twiss_data['x'] *1e3, mode='lines', name='Horizontal Closed Orbit', line=dict(color='black')), row=1, col=1)
@@ -756,12 +757,12 @@ v_corrector_currents_minus_0p4ms = {
 #TODO: Error table: choose file to edit 
 
 # # Sidebar checkboxes
-# apply_corr = st.sidebar.checkbox("Apply Vertical Correctors")
+#apply_corr = st.sidebar.checkbox("Apply Vertical Correctors")
 # apply_mis = st.sidebar.checkbox("Apply Misalignments")
 
 # dipole correctors (change orbit)
-apply_hd = st.sidebar.checkbox("Apply Horizontal Dipole")
-apply_vd = st.sidebar.checkbox("Apply Vertical Dipole")    ### <--- TO BE CONTINUED
+apply_hd = st.sidebar.checkbox("Apply Horizontal Dipole") ##x
+apply_vd = st.sidebar.checkbox("Apply Vertical Dipole")  ##y  ### <--- TO BE CONTINUED
 # trim quads (change tune - focusing)
 apply_tunes = st.sidebar.checkbox("Apply Tunes")
 apply_harmonics = st.sidebar.checkbox("Apply Harmonics") 
@@ -780,17 +781,8 @@ cycle_time_slider = st.sidebar.slider("Cycle Time (ms)", min_value=0.0, max_valu
 restrict_xaxis = st.sidebar.checkbox("Restrict x-axis domain to 1 super-period")
 xlimits = [16.336282 * 4, 16.336282 * 5] if restrict_xaxis else None
 
-# Build twiss based on selections
 twiss_current = twiss_0.copy()
-clist_file_x_m = 'clist_x_m_.dat'
-clist_file_y_m = 'clist_y_m_.dat'
-mlist_file_x_m = 'mlist_x_m_.dat'
-mlist_file_y_m = 'mlist_y_m_.dat'        
 
-clist_file_x = 'clist_x_.dat'
-clist_file_y = 'clist_y_.dat'
-mlist_file_x = 'mlist_x_.dat'
-mlist_file_y = 'mlist_y_.dat'
 
 
 ## Vertical corrections (not just a straight line)
