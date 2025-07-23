@@ -675,6 +675,16 @@ twiss_0 = cpymad_madx_twiss(madx, cpymad_logfile, sequence_name)
 
 st.write("Twiss Data Preview:", twiss_0.head())
 
+# epsilon = int(input("Beam Emittance: "))
+epsilon = 300 * 10**(-6)
+
+betx_array = twiss_0["betx"]
+bety_array = twiss_0["bety"]
+
+sigma_x = np.sqrt(betx_array*epsilon)
+sigma_y = np.sqrt(bety_array*epsilon)
+
+
 ##Logo 
 import base64
 with open("ukri-stfc-square-logo.png", "rb") as f:
