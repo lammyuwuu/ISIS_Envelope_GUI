@@ -634,10 +634,10 @@ def generate_orbit_plot(twiss_data, title_suffix="", overlay_data=None, xlimits=
     )
 
     # Row 1: horizontal orbit
-    fig.add_trace(go.Scatter(x=twiss_data['s'], y=twiss_data['x'] * 1e3, mode='lines', name='Horizontal Closed Orbit', line=dict(color='black')), row=2, col=1)
+    fig.add_trace(go.Scatter(x=twiss_data['s'], y=twiss_data['x'] * 1e3, mode='lines', name='Horizontal Closed Orbit', line=dict(color='black')), row=1, col=1)
 
     # Row 2: vertical orbit (with optional overlay)
-    fig.add_trace(go.Scatter(x=twiss_data['s'], y=twiss_data['y'] * 1e3, mode='lines', name='Vertical Closed Orbit', line=dict(color='black')), row=3, col=1)
+    fig.add_trace(go.Scatter(x=twiss_data['s'], y=twiss_data['y'] * 1e3, mode='lines', name='Vertical Closed Orbit', line=dict(color='black')), row=2, col=1)
     if overlay_data is not None:
         fig.add_trace(go.Scatter(
             x=overlay_data['s'],
@@ -768,9 +768,8 @@ mlist_file_x = 'mlist_x_.dat'
 mlist_file_y = 'mlist_y_.dat'
 
 
-## potentially useful
-# if apply_corr:
-#     twiss_current = apply_correctors(madx, twiss_current, v_corrector_currents_minus_0p4ms, max_E, cycle_time_slider)
+## Vertical corrections (not just a straight line)
+twiss_current = apply_correctors(madx, twiss_current, v_corrector_currents_minus_0p4ms, max_E, cycle_time_slider)
 
 # if apply_mis and uploaded_mis_file:
 #     twiss_current = apply_misalignments(madx, twiss_current, uploaded_mis_file)
