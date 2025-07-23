@@ -786,7 +786,11 @@ twiss_current = twiss_0.copy()
 
 
 ## Vertical corrections (not just a straight line)
-twiss_current = apply_correctors(madx, twiss_current, v_corrector_currents_minus_0p4ms, max_E, cycle_time_slider)
+if apply_hd:
+    twiss_current = apply_correctors(madx, twiss_current, v_corrector_currents_minus_0p4ms, max_E, cycle_time_slider)
+
+if apply_vd:
+    twiss_current = apply_correctors(madx, twiss_current, y_corrector_currents_minus_0p4ms, max_E, cycle_time_slider)
 
 # if apply_mis and uploaded_mis_file:
 #     twiss_current = apply_misalignments(madx, twiss_current, uploaded_mis_file)
