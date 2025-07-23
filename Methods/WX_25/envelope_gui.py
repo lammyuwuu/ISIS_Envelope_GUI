@@ -633,11 +633,33 @@ def generate_orbit_plot(twiss_data, title_suffix="", overlay_data=None, xlimits=
                [{"type": "scatter"}]]
     )
 
+    # Calculating envelopes
+
+    # epsilon = int(input("Beam Emittance: "))
+    epsilon = 300 * 1e-6
+
+    betx_array = twiss_data["betx"]
+    bety_array = twiss_data["bety"]
+
+    sigma_x = np.sqrt(betx_array*epsilon)
+    sigma_y = np.sqrt(bety_array*epsilon)
+
+    env_plus_x = twiss_data['s']  + sigma_x
+    env_minus_x = twiss_data['s'] - sigma_x
+    st.write(env_plus_x.head())
+    st.write(env_minus_x.head())
+    env_plus_y = twiss_data['x'] + sigma_y
+    env_minus_y = twiss_data['x'] - sigma_y
+
     # Row 1: horizontal orbit
-    fig.add_trace(go.Scatter(x=twiss_data['s'], y=twiss_data['x'] * 1e3, mode='lines', name='Horizontal Closed Orbit', line=dict(color='black')), row=1, col=1)
+    fig.add_trace(go.Scatter(x=twiss_data['s'], y=twiss_data['x'] *1e3, mode='lines', name='Horizontal Closed Orbit', line=dict(color='black')), row=1, col=1)
+    # Row 1: Envelope
+    fig.add_trace(go.Scatter(x=twiss_data['s'], y=env_plus_x*1e3, mode='lines', name='Envelope x+', line=dict(color='orange')), row=1, col=1)
+    fig.add_trace(go.Scatter(x=twiss_data['s'], y=env_minus_x*1e3, mode='lines', name='Envelope x-', line=dict(color='orange')), row=1, col=1)
 
     # Row 2: vertical orbit (with optional overlay)
-    fig.add_trace(go.Scatter(x=twiss_data['s'], y=twiss_data['y'] * 1e3, mode='lines', name='Vertical Closed Orbit', line=dict(color='black')), row=2, col=1)
+    fig.add_trace(go.Scatter(x=twiss_data['s'], y=twiss_data['y'] *1e3, mode='lines', name='Vertical Closed Orbit', line=dict(color='black')), row=2, col=1)
+    
     if overlay_data is not None:
         fig.add_trace(go.Scatter(
             x=overlay_data['s'],
@@ -646,6 +668,7 @@ def generate_orbit_plot(twiss_data, title_suffix="", overlay_data=None, xlimits=
             name='Measured vertical orbit',
             marker=dict(size=8, color='red')
         ), row=3, col=1)
+    #Row 2: Envelope
 
     # Layout
     fig.update_layout(title=plot_title, height=800, width=1000,
@@ -674,15 +697,6 @@ cpymad_set_isis_cycle_time(madx, max_E, cycle_time)
 twiss_0 = cpymad_madx_twiss(madx, cpymad_logfile, sequence_name)
 
 st.write("Twiss Data Preview:", twiss_0.head())
-
-# epsilon = int(input("Beam Emittance: "))
-epsilon = 300 * 10**(-6)
-
-betx_array = twiss_0["betx"]
-bety_array = twiss_0["bety"]
-
-sigma_x = np.sqrt(betx_array*epsilon)
-sigma_y = np.sqrt(bety_array*epsilon)
 
 
 ##Logo 

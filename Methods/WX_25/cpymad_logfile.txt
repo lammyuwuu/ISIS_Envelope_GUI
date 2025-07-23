@@ -3,7 +3,7 @@
   +     MAD-X 5.09.03  (64 bit, Windows)     +
   + Support: mad@cern.ch, http://cern.ch/mad +
   + Release   date: 2024.04.25               +
-  + Execution date: 2025.07.23 15:10:10      +
+  + Execution date: 2025.07.23 16:24:49      +
   ++++++++++++++++++++++++++++++++++++++++++++
 
 beam, particle = proton, pc = 0.37033168;
@@ -3484,14 +3484,12 @@ orbit:   0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0
 
  dqmin_phase 
 0.000000000000 
-
-  Number of warnings: 302
-302 in C and 0 in Fortran
-
-  ++++++++++++++++++++++++++++++++++++++++++++
-  +          MAD-X finished normally         +
-  ++++++++++++++++++++++++++++++++++++++++++++
-edefined
+++++++ info: r0vd1_kick redefined
+++++++ info: r2vd1_kick redefined
+++++++ info: r3vd1_kick redefined
+++++++ info: r4vd1_kick redefined
+++++++ info: r5vd1_kick redefined
+++++++ info: r7vd1_kick redefined
 ++++++ info: r9vd1_kick redefined
 enter Twiss module
   
