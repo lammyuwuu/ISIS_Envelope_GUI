@@ -76,6 +76,7 @@ def getValues() -> pd.DataFrame:
 
     df = pd.DataFrame(output)
 
+<<<<<<< HEAD
     return df
 
 #print(getValues())
@@ -168,3 +169,6 @@ def getBetaValues(twiss) -> pd.DataFrame:
     print(df.head())
     return df
 
+=======
+    return df
+>>>>>>> f7dc5f5ceb3a3f8e872db5cedba158a1159e3541
