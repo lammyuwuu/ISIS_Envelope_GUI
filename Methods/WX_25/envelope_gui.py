@@ -619,7 +619,7 @@ def apply_misalignments(madx, twiss_input, misalignments_file):
     cpymad_apply_and_check_error_table(madx, error_file, error_table_builder.error_df)
     return cpymad_madx_twiss_nocheck(madx, cpymad_logfile, sequence_name)
 
-def generate_orbit_plot(twiss_data, title_suffix="", overlay_data=None, xlimits=None):
+def generate_orbit_plot(twiss_data, epsilon, title_suffix="", overlay_data=None, xlimits=None):
     qx = madx.table.summ.q1[0]
     qy = madx.table.summ.q2[0]
     plot_title = f"{sequence_name} Q1={qx:.3f}, Q2={qy:.3f} {title_suffix}"
@@ -634,9 +634,6 @@ def generate_orbit_plot(twiss_data, title_suffix="", overlay_data=None, xlimits=
     )
 
     # Calculating envelopes
-
-    # epsilon = int(input("Beam Emittance: "))
-    epsilon = 300 * 1e-6
 
     betx_array = twiss_data["betx"]
     bety_array = twiss_data["bety"]
@@ -760,6 +757,15 @@ v_corrector_currents_minus_0p4ms = {
 #apply_corr = st.sidebar.checkbox("Apply Vertical Correctors")
 # apply_mis = st.sidebar.checkbox("Apply Misalignments")
 
+#User can enter their own beam emittance
+epsilon= float(st.sidebar.number_input("Enter Beam emittance in mrad (default is 300 x10^-6)", 
+                                       min_value = float(0), 
+                                       value = float(0.0003)))
+if epsilon ==0:
+
+    epsilon = 300 * 1e-6
+st.sidebar.write("The beam emittance is ", str(epsilon))
+
 # dipole correctors (change orbit)
 apply_hd = st.sidebar.checkbox("Apply Horizontal Dipole") ##x
 apply_vd = st.sidebar.checkbox("Apply Vertical Dipole")  ##y  ### <--- TO BE CONTINUED
@@ -852,4 +858,4 @@ if apply_vd:
 
 # Generate the main plot
 # generate_orbit_plot(twiss_current, title_suffix="", overlay_data=bpm_overlay, xlimits=xlimits)
-generate_orbit_plot(twiss_current, title_suffix="", xlimits=xlimits)
+generate_orbit_plot(twiss_current, epsilon, title_suffix="", xlimits=xlimits)
