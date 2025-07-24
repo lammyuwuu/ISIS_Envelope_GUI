@@ -603,7 +603,7 @@ def cpymad_replace_element_in_sequence(madx_instance, cpymad_logfile, sequence_n
 ########################################################################
 # perform seqedit to rename element in a sequence
 ########################################################################     
-def cpymad_rename_element_in_sequence(madx_instance, cpymad_logfile, cpymad_sequence, old_element, new_element, sequence_name):
+def cpymad_rename_element_in_sequence(madx_instance, cpymad_logfile, cpymad_sequence, old_element, new_element):
     
     log_string = '! cpymad_replace_element_in_sequence called for element ' +old_element+ ' in sequence ' + sequence_name
     cpymad_write_to_logfile(cpymad_logfile, log_string) 

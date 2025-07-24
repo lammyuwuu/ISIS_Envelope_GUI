@@ -11,7 +11,7 @@ from ISIS_tune_control_functions import *
 from cpymad_closed_orbit_matching_functions import *
 from helper_functions import round_sig, synchrotron_energy_data, synchrotron_energy_df
 from cpymad_helpers import cpymad_plot_CO_sp, cpymad_plot_CO_sp, cpymad_madx_twiss, cpymad_start, cpymad_check_and_use_sequence, cpymad_plot_CO_plotly, cpymad_plot_CO_sp_plotly, cpymad_plot_CO_sp_plotly
-from Scripts.get_values import *
+from Scripts.get_tune_values import *
 cpymad_logfile = 'cpymad_logfile.txt'
 sequence_name = 'synchrotron'
 madx = cpymad_start(cpymad_logfile)
@@ -809,6 +809,10 @@ if apply_vd:
 
 if apply_hd:
     twiss_current = apply_correctors(madx, twiss_current, h_corrector_currents_minus_0p4ms, max_E, cycle_time_slider)
+
+if apply_tunes:
+    twiss_current = getValues()
+
 
 # if apply_mis and uploaded_mis_file:
 #     twiss_current = apply_misalignments(madx, twiss_current, uploaded_mis_file)

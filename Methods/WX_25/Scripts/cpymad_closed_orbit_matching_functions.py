@@ -17,7 +17,7 @@ from cpymad_helpers import *
 # Read BPM dat file and return pandas daataframe of raw data
 ########################################################################
 def bpm_dat_to_df(filename):
-    return pd.read_table(filename, names=['Monitor', 0,1,2,3,4,5,6,7,8,9], delim_whitespace=True)
+    return pnd.read_table(filename, names=['Monitor', 0,1,2,3,4,5,6,7,8,9], delim_whitespace=True)
 
 ########################################################################
 # Read BPM acquisition file + twiss file return prrocessed dataframe
@@ -213,7 +213,7 @@ def process_bpm_dat_df_hv(dat_file, twiss_file, horizontal=True, verbose=False):
 # Read processed BPM dat file and return pandas daataframe of raw data
 ########################################################################
 def processed_bpm_dat_to_df(filename):
-    return pd.read_table(filename, header=0, delim_whitespace=True)
+    return pnd.read_table(filename, header=0, delim_whitespace=True)
     
 ########################################################################
 # Difference between 2 processed bpm data files
@@ -255,7 +255,7 @@ def generate_processed_bpm_difference_df(df1, df2, output_filename, time='0'):
                 mu_list.append(row['Mu'])
                 beta_list.append(row['Beta'])
 
-    out_df = pd.DataFrame(list(zip(s_list, mon_list, mu_list, beta_list, x_list)), columns =['S', 'Monitor', 'Mu', 'Beta', time])
+    out_df = pnd.DataFrame(list(zip(s_list, mon_list, mu_list, beta_list, x_list)), columns =['S', 'Monitor', 'Mu', 'Beta', time])
     pandas_save_to_file(out_df, output_filename)
     return out_df
 
@@ -279,7 +279,6 @@ def generate_processed_bpm_sum(processed_dat_file_1, processed_dat_file_2, outpu
             mon_list.append(monitor_str)
             # Use try/excepts to handle cases where processed data file
             # stores bpm data under time '0' by default
-            time = 0
             summ = float(row[time1] + df2[df2['Monitor'].str.contains(monitor_str)][time2])
                     
             if not np.isnan(summ):
@@ -288,7 +287,7 @@ def generate_processed_bpm_sum(processed_dat_file_1, processed_dat_file_2, outpu
                 mu_list.append(row['Mu'])
                 beta_list.append(row['Beta'])
 
-    out_df = pd.DataFrame(list(zip(s_list, mon_list, mu_list, beta_list, x_list)), columns =['S', 'Monitor', 'Mu', 'Beta', time])
+    out_df = pnd.DataFrame(list(zip(s_list, mon_list, mu_list, beta_list, x_list)), columns =['S', 'Monitor', 'Mu', 'Beta', time])
     pandas_save_to_file(out_df, output_filename)
     return out_df
 ########################################################################
@@ -313,7 +312,7 @@ def set_n_random_kicks_from_knobs(madx_instance, cpymad_logfile, num_kicks, vary
         
     cpymad_write_to_logfile(cpymad_logfile, log_string)
     zipped = list(zip(knobs, random_kicks*1E3))    
-    df = pd.DataFrame(zipped, columns=['knob', 'kick (mrad)'])
+    df = pnd.DataFrame(zipped, columns=['knob', 'kick (mrad)'])
 
     return df
 
@@ -514,7 +513,7 @@ def read_twiss_generate_orbit_df(twissfile, horizontal=True, FMon=True):
                 t_y.append(float(df_myTwiss[df_myTwiss['name'].str.contains(element)].y))
                     
         zipped = list(zip(t_name, t_s, t_x, t_y))    
-        df = pd.DataFrame(zipped, columns=['Monitor', 'S', 'x', 'y'])
+        df = pnd.DataFrame(zipped, columns=['Monitor', 'S', 'x', 'y'])
     else:    
         if FMon:
             for element in v_fmon:
@@ -530,7 +529,7 @@ def read_twiss_generate_orbit_df(twissfile, horizontal=True, FMon=True):
                 t_y.append(float(df_myTwiss[df_myTwiss['name'].str.contains(element)].y))
                     
         zipped = list(zip(t_name, t_s, t_x, t_y))    
-        df = pd.DataFrame(zipped, columns=['Monitor', 'S', 'x', 'y'])
+        df = pnd.DataFrame(zipped, columns=['Monitor', 'S', 'x', 'y'])
 
     return df
 
@@ -614,7 +613,7 @@ def read_twiss_generate_measured_co_df(twissfile, horizontal=True, FMon=True, ti
                 t_beta.append(float(df_myTwiss[df_myTwiss['name'].str.contains(element)].bety))
                     
     zipped = list(zip(t_s, t_name, t_mu, t_beta, t_x))    
-    df = pd.DataFrame(zipped, columns=['S', 'Monitor', 'Mu', 'Beta', str(time)])
+    df = pnd.DataFrame(zipped, columns=['S', 'Monitor', 'Mu', 'Beta', str(time)])
 
     return df
 
@@ -812,7 +811,7 @@ def measurements_from_file(filename, time='0'):
     # ~ meas_list = []    
     # ~ time_list = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
-    m_df = pd.read_table(filename, index_col=0, header=0, delim_whitespace=True)
+    m_df = pnd.read_table(filename, index_col=0, header=0, delim_whitespace=True)
     # ~ time_label = time
     # ~ time_test = False
     
@@ -838,7 +837,7 @@ def measurements_from_file_old1(filename, horizontal=True):
     s_list = []
     meas_list = []    
 
-    m_df = pd.read_table(filename, index_col=0, header=0, delim_whitespace=True)
+    m_df = pnd.read_table(filename, index_col=0, header=0, delim_whitespace=True)
 
     for index, row in m_df.iterrows(): 
         if horizontal:                
@@ -862,7 +861,7 @@ def measurements_from_file_old2(filename, monitor_header='Monitor', horizontal=T
     
     if filetype == 'BPM':
         # Read file to dataframe
-        bpm_df = pd.read_table(filename, delim_whitespace=True)
+        bpm_df = pnd.read_table(filename, delim_whitespace=True)
         
         for index, row in bpm_df.iterrows(): 
             if horizontal:
@@ -879,7 +878,7 @@ def measurements_from_file_old2(filename, monitor_header='Monitor', horizontal=T
                         meas_list.append(row[time])
     else:
         # Read file to dataframe
-        m_df = pd.read_table(filename, index_col=0, header=0, delim_whitespace=True)
+        m_df = pnd.read_table(filename, index_col=0, header=0, delim_whitespace=True)
         
         for index, row in m_df.iterrows(): 
             if horizontal:                
@@ -902,7 +901,7 @@ def constraints_from_file_range(filename, horizontal=True, time='0'):
     constraints_list = []
     
     # Read file to dataframe
-    bpm_df = pd.read_table(filename, delim_whitespace=True)
+    bpm_df = pnd.read_table(filename, delim_whitespace=True)
     
     for index, row in bpm_df.iterrows(): 
         if horizontal:
@@ -921,7 +920,7 @@ def constraints_from_file_range_old(filename, monitor_header='Monitor', horizont
     
     if filetype == 'BPM':
         # Read file to dataframe
-        bpm_df = pd.read_table(filename, delim_whitespace=True)
+        bpm_df = pnd.read_table(filename, delim_whitespace=True)
         
         for index, row in bpm_df.iterrows(): 
             if horizontal:
@@ -935,7 +934,7 @@ def constraints_from_file_range_old(filename, monitor_header='Monitor', horizont
 
     else:
         # Read file to dataframe
-        m_df = pd.read_table(filename, index_col=0, header=0, delim_whitespace=True)
+        m_df = pnd.read_table(filename, index_col=0, header=0, delim_whitespace=True)
         
         for index, row in m_df.iterrows(): 
 
@@ -954,7 +953,7 @@ def constraints_from_file(filename, horizontal=True):
     constraints_list = []
 
     # Read file to dataframe
-    bpm_df = pd.read_table(filename, delim_whitespace=True)
+    bpm_df = pnd.read_table(filename, delim_whitespace=True)
     
     for index, row in bpm_df.iterrows(): 
         if horizontal:
@@ -973,7 +972,7 @@ def constraints_from_file_old(filename, monitor_header='Monitor', horizontal=Tru
     
     if filetype == 'BPM':
         # Read file to dataframe
-        bpm_df = pd.read_table(filename, delim_whitespace=True)
+        bpm_df = pnd.read_table(filename, delim_whitespace=True)
         
         for index, row in bpm_df.iterrows(): 
             if horizontal:
@@ -987,7 +986,7 @@ def constraints_from_file_old(filename, monitor_header='Monitor', horizontal=Tru
 
     else:
         # Read file to dataframe
-        m_df = pd.read_table(filename, index_col=0, header=0, delim_whitespace=True)
+        m_df = pnd.read_table(filename, index_col=0, header=0, delim_whitespace=True)
         
         for index, row in m_df.iterrows(): 
 
@@ -1727,10 +1726,10 @@ def find_single_kick_match(madx_instance, cpymad_logfile, sequence_name, vary_li
     
     if horizontal: 
         zipped = list(zip(odf_s, odf_name, odf_knob, odf_x, odf_kick, odf_std))    
-        df = pd.DataFrame(zipped, columns=['s', 'name', 'knob', 'x (mm)', 'kick (mrad)', 'std (mm)'])
+        df = pnd.DataFrame(zipped, columns=['s', 'name', 'knob', 'x (mm)', 'kick (mrad)', 'std (mm)'])
     else:
         zipped = list(zip(odf_s, odf_name, odf_knob, odf_y, odf_kick, odf_std))    
-        df = pd.DataFrame(zipped, columns=['s', 'name', 'knob', 'y (mm)', 'kick (mrad)', 'std (mm)'])
+        df = pnd.DataFrame(zipped, columns=['s', 'name', 'knob', 'y (mm)', 'kick (mrad)', 'std (mm)'])
     return df
 
 
@@ -1827,10 +1826,10 @@ def find_double_kick_match(madx_instance, cpymad_logfile, sequence_name, vary_li
     
     if horizontal: 
         zipped = list(zip(odf_s1, odf_s2, odf_name1, odf_name2, odf_knob1, odf_knob2, odf_x1, odf_x2, odf_kick1, odf_kick2, odf_std))    
-        df = pd.DataFrame(zipped, columns=['s1','s2', 'name1','name2', 'knob1','knob2', 'x1 (mm)','x2 (mm)', 'kick1 (mrad)','kick2 (mrad)', 'std (mm)'])
+        df = pnd.DataFrame(zipped, columns=['s1','s2', 'name1','name2', 'knob1','knob2', 'x1 (mm)','x2 (mm)', 'kick1 (mrad)','kick2 (mrad)', 'std (mm)'])
     else:
         zipped = list(zip(odf_s1, odf_s2, odf_name1, odf_name2, odf_knob1, odf_knob2, odf_y1, odf_y2, odf_kick1, odf_kick2, odf_std))    
-        df = pd.DataFrame(zipped, columns=['s1','s2', 'name1','name2', 'knob1','knob2', 'y1 (mm)','y2 (mm)', 'kick1 (mrad)','kick2 (mrad)', 'std (mm)'])
+        df = pnd.DataFrame(zipped, columns=['s1','s2', 'name1','name2', 'knob1','knob2', 'y1 (mm)','y2 (mm)', 'kick1 (mrad)','kick2 (mrad)', 'std (mm)'])
     return df
 
 
@@ -1924,10 +1923,10 @@ def find_double_kick_match_tunes(madx_instance, cpymad_logfile, sequence_name, v
     
     if horizontal: 
         zipped = list(zip(odf_s1, odf_s2, odf_name1, odf_name2, odf_knob1, odf_knob2, odf_x1, odf_x2, odf_kick1, odf_kick2, odf_std))    
-        df = pd.DataFrame(zipped, columns=['s1','s2', 'name1','name2', 'knob1','knob2', 'x1 (mm)','x2 (mm)', 'kick1 (mrad)','kick2 (mrad)', 'std (mm)'])
+        df = pnd.DataFrame(zipped, columns=['s1','s2', 'name1','name2', 'knob1','knob2', 'x1 (mm)','x2 (mm)', 'kick1 (mrad)','kick2 (mrad)', 'std (mm)'])
     else:
         zipped = list(zip(odf_s1, odf_s2, odf_name1, odf_name2, odf_knob1, odf_knob2, odf_y1, odf_y2, odf_kick1, odf_kick2, odf_std))    
-        df = pd.DataFrame(zipped, columns=['s1','s2', 'name1','name2', 'knob1','knob2', 'y1 (mm)','y2 (mm)', 'kick1 (mrad)','kick2 (mrad)', 'std (mm)'])
+        df = pnd.DataFrame(zipped, columns=['s1','s2', 'name1','name2', 'knob1','knob2', 'y1 (mm)','y2 (mm)', 'kick1 (mrad)','kick2 (mrad)', 'std (mm)'])
     return df
 
 
@@ -2018,10 +2017,10 @@ def find_second_kick_match(madx_instance, cpymad_logfile, sequence_name, vary_li
     
     if horizontal: 
         zipped = list(zip(odf_s, odf_name, odf_knob, odf_x, odf_kick, odf_std))    
-        df = pd.DataFrame(zipped, columns=['s', 'name', 'knob', 'x (mm)', 'kick (mrad)', 'std (mm)'])
+        df = pnd.DataFrame(zipped, columns=['s', 'name', 'knob', 'x (mm)', 'kick (mrad)', 'std (mm)'])
     else:
         zipped = list(zip(odf_s, odf_name, odf_knob, odf_y, odf_kick, odf_std))    
-        df = pd.DataFrame(zipped, columns=['s', 'name', 'knob', 'y (mm)', 'kick (mrad)', 'std (mm)'])
+        df = pnd.DataFrame(zipped, columns=['s', 'name', 'knob', 'y (mm)', 'kick (mrad)', 'std (mm)'])
     return df
 
 
@@ -2099,10 +2098,10 @@ def find_single_kick_match_tunes(madx_instance, cpymad_logfile, sequence_name, v
     
     if horizontal: 
         zipped = list(zip(odf_s, odf_name, odf_knob, odf_x, odf_kick, odf_std))    
-        df = pd.DataFrame(zipped, columns=['s', 'name', 'knob', 'x (mm)', 'kick (mrad)', 'std (mm)'])
+        df = pnd.DataFrame(zipped, columns=['s', 'name', 'knob', 'x (mm)', 'kick (mrad)', 'std (mm)'])
     else:
         zipped = list(zip(odf_s, odf_name, odf_knob, odf_y, odf_kick, odf_std))    
-        df = pd.DataFrame(zipped, columns=['s', 'name', 'knob', 'y (mm)', 'kick (mrad)', 'std (mm)'])
+        df = pnd.DataFrame(zipped, columns=['s', 'name', 'knob', 'y (mm)', 'kick (mrad)', 'std (mm)'])
     return df
     
 def match_tune_ptc(madx_instance, sequence_name, requested_q1, requested_q2): #, beta_limits=None):
@@ -2203,7 +2202,7 @@ def kicker_co_plot(ax1, tfs_file, horizontal=True, start_element=None, limits=No
             
     if horizontal:
 
-        all_kicks_df = pd.concat([hd_df.hkick, vd_df.hkick, mds_df.hkick, mde_df.hkick, qtf_df.hkick, qtd_df.hkick, qds_df.hkick])
+        all_kicks_df = pnd.concat([hd_df.hkick, vd_df.hkick, mds_df.hkick, mde_df.hkick, qtf_df.hkick, qtd_df.hkick, qds_df.hkick])
 
         max_kick = np.max(all_kicks_df)*1E3
         min_kick = np.min(all_kicks_df)*1E3
@@ -2237,7 +2236,7 @@ def kicker_co_plot(ax1, tfs_file, horizontal=True, start_element=None, limits=No
         sp8_kick = round_sig(( np.sum(np.abs(hd_df[hd_df['name'].str.contains('sp8')].hkick)) + np.sum(np.abs(mde_df[mde_df['name'].str.contains('sp8')].hkick)) +  np.sum(np.abs(mde_df[mde_df['name'].str.contains('sp8')].hkick)) + np.sum(np.abs(qtf_df[qtf_df['name'].str.contains('sp8')].hkick)) + np.sum(np.abs(qtd_df[qtd_df['name'].str.contains('sp8')].hkick)) + np.sum(np.abs(qds_df[qds_df['name'].str.contains('sp8')].hkick)) ),3)*1E3
         sp9_kick = round_sig(( np.sum(np.abs(hd_df[hd_df['name'].str.contains('sp9')].hkick)) + np.sum(np.abs(mde_df[mde_df['name'].str.contains('sp9')].hkick)) +  np.sum(np.abs(mde_df[mde_df['name'].str.contains('sp9')].hkick)) + np.sum(np.abs(qtf_df[qtf_df['name'].str.contains('sp9')].hkick)) + np.sum(np.abs(qtd_df[qtd_df['name'].str.contains('sp9')].hkick)) + np.sum(np.abs(qds_df[qds_df['name'].str.contains('sp9')].hkick)) ),3)*1E3
 
-        #data = pd.DataFrame({'0': sp0_kick, '1': sp1_kick, '2': sp2_kick, '3': sp3_kick, '4': sp4_kick, '5': sp5_kick, '6': sp6_kick, '7': sp7_kick, '8': sp8_kick, '9': sp9_kick}, index=[0])
+        #data = pnd.DataFrame({'0': sp0_kick, '1': sp1_kick, '2': sp2_kick, '3': sp3_kick, '4': sp4_kick, '5': sp5_kick, '6': sp6_kick, '7': sp7_kick, '8': sp8_kick, '9': sp9_kick}, index=[0])
         #widths = np.ones(10)*0.08
         #ax1.table(cellText=data.values, colLabels=data.columns, loc=3, colWidths=widths, edges='open', fontsize=12)
         
@@ -2252,7 +2251,7 @@ def kicker_co_plot(ax1, tfs_file, horizontal=True, start_element=None, limits=No
     # Vertical
     else:
         
-        all_kicks_df = pd.concat([hd_df.vkick, vd_df.vkick, mds_df.vkick, mde_df.vkick, qtf_df.vkick, qtd_df.vkick, qds_df.vkick])
+        all_kicks_df = pnd.concat([hd_df.vkick, vd_df.vkick, mds_df.vkick, mde_df.vkick, qtf_df.vkick, qtd_df.vkick, qds_df.vkick])
 
         max_kick = np.max(all_kicks_df)*1E3
         min_kick = np.min(all_kicks_df)*1E3
@@ -2345,7 +2344,7 @@ def kicker_plot(ax_1, tfs_file, horizontal=True, start_element=None, limits=None
             
     if horizontal:
 
-        all_kicks_df = pd.concat([hd_df.hkick, vd_df.hkick, mds_df.hkick, mde_df.hkick, qtf_df.hkick, qtd_df.hkick, qf_df.hkick, qd_df.hkick, qds_df.hkick])
+        all_kicks_df = pnd.concat([hd_df.hkick, vd_df.hkick, mds_df.hkick, mde_df.hkick, qtf_df.hkick, qtd_df.hkick, qf_df.hkick, qd_df.hkick, qds_df.hkick])
 
         max_kick = np.max(all_kicks_df)*1E3
         min_kick = np.min(all_kicks_df)*1E3
@@ -2383,7 +2382,7 @@ def kicker_plot(ax_1, tfs_file, horizontal=True, start_element=None, limits=None
         sp8_kick = round_sig(( np.sum(np.abs(hd_df[hd_df['name'].str.contains('sp8')].hkick)) + np.sum(np.abs(mde_df[mde_df['name'].str.contains('sp8')].hkick)) +  np.sum(np.abs(mde_df[mde_df['name'].str.contains('sp8')].hkick)) + np.sum(np.abs(qtf_df[qtf_df['name'].str.contains('sp8')].hkick)) + np.sum(np.abs(qtd_df[qtd_df['name'].str.contains('sp8')].hkick)) + np.sum(np.abs(qf_df[qf_df['name'].str.contains('sp8')].hkick)) + np.sum(np.abs(qd_df[qd_df['name'].str.contains('sp8')].hkick)) + np.sum(np.abs(qds_df[qds_df['name'].str.contains('sp8')].hkick)) ),3)*1E3
         sp9_kick = round_sig(( np.sum(np.abs(hd_df[hd_df['name'].str.contains('sp9')].hkick)) + np.sum(np.abs(mde_df[mde_df['name'].str.contains('sp9')].hkick)) +  np.sum(np.abs(mde_df[mde_df['name'].str.contains('sp9')].hkick)) + np.sum(np.abs(qtf_df[qtf_df['name'].str.contains('sp9')].hkick)) + np.sum(np.abs(qtd_df[qtd_df['name'].str.contains('sp9')].hkick)) + np.sum(np.abs(qf_df[qf_df['name'].str.contains('sp9')].hkick)) + np.sum(np.abs(qd_df[qd_df['name'].str.contains('sp9')].hkick)) + np.sum(np.abs(qds_df[qds_df['name'].str.contains('sp9')].hkick)) ),3)*1E3
 
-        #data = pd.DataFrame({'0': sp0_kick, '1': sp1_kick, '2': sp2_kick, '3': sp3_kick, '4': sp4_kick, '5': sp5_kick, '6': sp6_kick, '7': sp7_kick, '8': sp8_kick, '9': sp9_kick}, index=[0])
+        #data = pnd.DataFrame({'0': sp0_kick, '1': sp1_kick, '2': sp2_kick, '3': sp3_kick, '4': sp4_kick, '5': sp5_kick, '6': sp6_kick, '7': sp7_kick, '8': sp8_kick, '9': sp9_kick}, index=[0])
         #widths = np.ones(10)*0.08
         #ax_1.table(cellText=data.values, colLabels=data.columns, loc=3, colWidths=widths, edges='open', fontsize=12)
         
@@ -2395,7 +2394,7 @@ def kicker_plot(ax_1, tfs_file, horizontal=True, start_element=None, limits=None
     # Vertical
     else:
         
-        all_kicks_df = pd.concat([hd_df.vkick, vd_df.vkick, mds_df.vkick, mde_df.vkick, qtf_df.vkick, qtd_df.vkick, qf_df.vkick, qd_df.vkick, qds_df.vkick])
+        all_kicks_df = pnd.concat([hd_df.vkick, vd_df.vkick, mds_df.vkick, mde_df.vkick, qtf_df.vkick, qtd_df.vkick, qf_df.vkick, qd_df.vkick, qds_df.vkick])
 
         max_kick = np.max(all_kicks_df)*1E3
         min_kick = np.min(all_kicks_df)*1E3
@@ -2515,8 +2514,8 @@ def kicker_plot_diff(ax_1, tfs_file_0, tfs_file, horizontal=True, start_element=
             
     if horizontal:
 
-        all_kicks_df_0 = pd.concat([hd_df_0.hkick, vd_df_0.hkick, mds_df_0.hkick, mde_df_0.hkick, qtf_df_0.hkick, qtd_df_0.hkick, qf_df_0.hkick, qd_df_0.hkick, qds_df_0.hkick])
-        all_kicks_df = pd.concat([hd_df.hkick, vd_df.hkick, mds_df.hkick, mde_df.hkick, qtf_df.hkick, qtd_df.hkick, qf_df.hkick, qd_df.hkick, qds_df.hkick])
+        all_kicks_df_0 = pnd.concat([hd_df_0.hkick, vd_df_0.hkick, mds_df_0.hkick, mde_df_0.hkick, qtf_df_0.hkick, qtd_df_0.hkick, qf_df_0.hkick, qd_df_0.hkick, qds_df_0.hkick])
+        all_kicks_df = pnd.concat([hd_df.hkick, vd_df.hkick, mds_df.hkick, mde_df.hkick, qtf_df.hkick, qtd_df.hkick, qf_df.hkick, qd_df.hkick, qds_df.hkick])
 
         max_kick = np.max(all_kicks_df)*1E3
         min_kick = np.min(all_kicks_df)*1E3
@@ -2576,7 +2575,7 @@ def kicker_plot_diff(ax_1, tfs_file_0, tfs_file, horizontal=True, start_element=
     # Vertical
     else:
         
-        all_kicks_df = pd.concat([hd_df.vkick, vd_df.vkick, mds_df.vkick, mde_df.vkick, qtf_df.vkick, qtd_df.vkick, qds_df.vkick])
+        all_kicks_df = pnd.concat([hd_df.vkick, vd_df.vkick, mds_df.vkick, mde_df.vkick, qtf_df.vkick, qtd_df.vkick, qds_df.vkick])
 
         max_kick = np.max(all_kicks_df)*1E3
         min_kick = np.min(all_kicks_df)*1E3
@@ -2713,7 +2712,7 @@ def kicker_plot_cf(ax_1, tfs_file_0, tfs_file, horizontal=True, start_element=No
             
     if horizontal:
 
-        all_kicks_df = pd.concat([hd_df.hkick, vd_df.hkick, mds_df.hkick, mde_df.hkick, qtf_df.hkick, qtd_df.hkick, qf_df.hkick, qd_df.hkick, qds_df.hkick])
+        all_kicks_df = pnd.concat([hd_df.hkick, vd_df.hkick, mds_df.hkick, mde_df.hkick, qtf_df.hkick, qtd_df.hkick, qf_df.hkick, qd_df.hkick, qds_df.hkick])
 
         max_kick = np.max(all_kicks_df)*1E3
         min_kick = np.min(all_kicks_df)*1E3
@@ -2774,7 +2773,7 @@ def kicker_plot_cf(ax_1, tfs_file_0, tfs_file, horizontal=True, start_element=No
     # Vertical
     else:
         
-        all_kicks_df = pd.concat([hd_df.vkick, vd_df.vkick, mds_df.vkick, mde_df.vkick, qtf_df.vkick, qtd_df.vkick, qds_df.vkick])
+        all_kicks_df = pnd.concat([hd_df.vkick, vd_df.vkick, mds_df.vkick, mde_df.vkick, qtf_df.vkick, qtd_df.vkick, qds_df.vkick])
 
         max_kick = np.max(all_kicks_df)*1E3
         min_kick = np.min(all_kicks_df)*1E3

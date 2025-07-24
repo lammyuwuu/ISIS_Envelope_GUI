@@ -1,10 +1,14 @@
+from helper_functions import *
 from cpymad_helpers import *
 from cpymad_closed_orbit_matching_functions import *
 from ISIS_tune_control_functions import *
-from helper_functions import *
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
+
+
+
+
+######################################################### 
+#*******************  FUNCTIONS AND CLASSES FROM NOTEBOOK ***********************
+#########################################################
 
 def cpymad_set_isis_cycle_time(madx_instance, max_E, time):
     # Ensure time is a float and in valid increments
@@ -13,7 +17,7 @@ def cpymad_set_isis_cycle_time(madx_instance, max_E, time):
         return
 
     # Generate dataframe of synchrotron energy and related info
-    energy_df = helper_functions.synchrotron_energy_df(max_E, intervals=20)
+    energy_df = synchrotron_energy_df(max_E, intervals=20)
 
     # store some values for this time point
     try:
@@ -29,6 +33,7 @@ def cpymad_set_isis_cycle_time(madx_instance, max_E, time):
     # print confirmation
     print(f'ISIS cpymad run, energy set to {energy} MeV, pc = {pc}')
 
+
 def set_DW_tunes(madx_instance, cpymad_logfile, input_df, sequence_name='synchrotron'):
     madx_instance.globals.kqtd = 0
     madx_instance.globals.kqtf = 0
@@ -41,6 +46,8 @@ def set_DW_tunes(madx_instance, cpymad_logfile, input_df, sequence_name='synchro
     
     twiss_df = cpymad_madx_twiss(madx_instance, cpymad_logfile, sequence_name)  
     return madx_instance.table.summ.q1[0], madx_instance.table.summ.q2[0]
+
+
 
 def tune_calculation_iterator(madx_instance, df_input, cpymad_logfile, sequence_name='synchrotron'):
     qx_array = []  # to store output
@@ -66,7 +73,6 @@ def tune_calculation_iterator(madx_instance, df_input, cpymad_logfile, sequence_
         df_input.at[index, 'Machine Qv'] = qy_out
 
     return df_input
-
 
 class resonance_lines(object):
 
@@ -198,5 +204,75 @@ class resonance_lines(object):
                         str(abs(resonance[1])).rjust(2), str(res_sum).rjust(4), \
                         ("(non-systematic)", "(systematic)")[res_sum%self.periodicity==0])
                 print(print_string)
+
+######################################################### 
+#******************* END OF FUNCTIONS AND CLASSES FROM NOTEBOOK ***********************
+#########################################################
+
+def get_harmonic(pv_name: str, cycletime: str | float) -> float:
+    """Return rows matching a specific CycleTime and PV value."""
+    # Get the directory of the current script
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    csv_path = os.path.join(script_dir, "..", "Collected_EPICS_data", "get_EPICS_Harmonics_full_cycle.dat")
+
+    harmonic_data = pd.read_csv(csv_path)
+
+    harmonic_index = harmonic_data["PV"].str.contains(f"DWTRIM::{pv_name}:AT_TIME:{cycletime}MS")
+    return harmonic_data[harmonic_index]["Harmonic"].to_list()[0]
+
+
+
+def get_twiss_table(time_point, has_harmonic):
+    # 1. Instantiate a MAD-X object
+    cpymad_logfile = 'cpymad_logfile.txt'
+    sequence_name = 'synchrotron'
+
+    madx = cpymad_start(cpymad_logfile)
+
+    #`madx` is the simulation object, next we have to give it the description of the synchrotron, also called the **lattice**
+    #We have a number of lattices to choose from
+
+    # lattice_folder = '../Lattice_Files/00_Simplified_Lattice/'
+    # lattice_folder = '../Lattice_Files/01_Original_Lattice/'
+    # lattice_folder = '../Lattice_Files/02_Aperture_Lattice/'
+    # lattice_folder = '../Lattice_Files/03_CO_Kick_Lattice/'
+    lattice_folder = '../Lattice_Files/04_New_Harmonics/'
+
+    madx.call(file=lattice_folder+'ISIS.injected_beam')
+    madx.call(file=lattice_folder+'ISIS.strength')
+    madx.call(file=lattice_folder+'2023.strength')
+    madx.call(file=lattice_folder+'ISIS.elements')
+    madx.call(file=lattice_folder+'ISIS.sequence')
+
+    cpymad_check_and_use_sequence(madx, cpymad_logfile, sequence_name)
+
+    ## Set harmonics
+
+    if has_harmonic:
+        madx.globals['D7COS'] = get_harmonic("D7COS", time_point)
+        madx.globals['D8COS'] = get_harmonic("D8COS", time_point)
+        madx.globals['F8COS'] = get_harmonic("F8COS", time_point)
+        madx.globals['D7SIN'] = get_harmonic("D7SIN", time_point)
+        madx.globals['D8SIN'] = get_harmonic("D8SIN", time_point)
+        madx.globals['F8SIN'] = get_harmonic("F8SIN", time_point)
+
+
+
+    # 2. Set the cycle time = beam energy
+    max_E = 800 # 800 MeV
+    cycle_time = time_point # 1.5 milliseconds into the 10 ms acceleration cycle of the synchrotron
+    cpymad_set_isis_cycle_time(madx, max_E, cycle_time)
+
+    twiss_0 = cpymad_madx_twiss(madx, cpymad_logfile, sequence_name)
+
+
+
+
+    # 3. Calculate lattice parameters using **TWISS** command
+
+
+
+    cpymad_plot_madx_twiss_quads(madx, twiss_0, title='Initial lattice tune')
+    return twiss_0
 
 
