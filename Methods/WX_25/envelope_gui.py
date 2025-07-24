@@ -12,6 +12,8 @@ from helper_functions import round_sig, synchrotron_energy_data, synchrotron_ene
 from cpymad_helpers import cpymad_madx_twiss, cpymad_start, cpymad_check_and_use_sequence
 from get_tune_values import *
 from plotly.subplots import make_subplots
+from plot_tune import *
+
 cpymad_logfile = 'cpymad_logfile.txt'
 sequence_name = 'synchrotron'
 madx = cpymad_start(cpymad_logfile)
@@ -601,7 +603,6 @@ def cpymad_set_isis_cycle_time(madx_instance, max_E, time):
 
     # print confirmation
     print(f'ISIS cpymad run, energy set to {energy} MeV, pc = {pc}')
-
     return time
 
 # Streamlit title and description
@@ -813,12 +814,9 @@ if apply_hd:
     twiss_current = apply_correctors(madx, twiss_current, h_corrector_currents_minus_0p4ms, max_E, cycle_time_slider)
 
 if apply_tunes:
-<<<<<<< HEAD
-    twiss_current = getBetaValues(twiss_current)
-=======
     df = getValues()
-    Qh = df['time' == time_point]['x']
-    Qv = df['time' == time_point]['y']
+    Qh = df['time'==time_point]['x']
+    Qv = df['time'==time_point]['y']
     set_tune_DW(madx, cpymad_logfile, Qh, Qv, time_point)
 
 if apply_harmonics:
@@ -829,7 +827,6 @@ if apply_harmonics:
     madx.globals['D8SIN'] = get_harmonic("D8SIN", time_point)
     madx.globals['F8SIN'] = get_harmonic("F8SIN", time_point)
 
->>>>>>> f7dc5f5ceb3a3f8e872db5cedba158a1159e3541
 
 
 # if apply_mis and uploaded_mis_file:
