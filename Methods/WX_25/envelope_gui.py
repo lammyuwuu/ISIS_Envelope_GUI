@@ -4,14 +4,14 @@ import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import pandas as pd
 from datetime import datetime
-import sys
 
 # Import necessary classes and functions
 from ISIS_tune_control_functions import *
 from cpymad_closed_orbit_matching_functions import *
 from helper_functions import round_sig, synchrotron_energy_data, synchrotron_energy_df
-from cpymad_helpers import cpymad_plot_CO_sp, cpymad_plot_CO_sp, cpymad_madx_twiss, cpymad_start, cpymad_check_and_use_sequence, cpymad_plot_CO_plotly, cpymad_plot_CO_sp_plotly, cpymad_plot_CO_sp_plotly
-from Scripts.get_tune_values import *
+from cpymad_helpers import cpymad_madx_twiss, cpymad_start, cpymad_check_and_use_sequence
+from get_tune_values import *
+from plotly.subplots import make_subplots
 cpymad_logfile = 'cpymad_logfile.txt'
 sequence_name = 'synchrotron'
 madx = cpymad_start(cpymad_logfile)
@@ -770,15 +770,15 @@ h_corrector_currents_minus_0p4ms = {
 # apply_mis = st.sidebar.checkbox("Apply Misalignments")
 
 #User can enter their own beam emittance
-epsilon= float(st.sidebar.number_input("Enter Beam emittance in mrad x10⁻⁶ (default is 300 x10^-6)", 
+epsilonOrig= float(st.sidebar.number_input("Enter Beam emittance in mmmrad (default is 300 )", 
                                        min_value = float(50), 
                                        max_value = float(500),
                                        value = float(300)))
-if epsilon ==0:
+if epsilonOrig ==0:
     epsilon = 300 * 1e-6
 else:
-    epsilon = epsilon * 1e-6
-st.sidebar.write("The beam emittance is ", str(round(epsilon, -int(floor(log10(abs(epsilon)))))))
+    epsilon = epsilonOrig * 1e-6
+st.sidebar.write("The beam emittance is ", str(epsilonOrig), "mmmrad")
 
 # dipole correctors (change orbit)
 apply_hd = st.sidebar.checkbox("Apply Horizontal Dipole") ##x
