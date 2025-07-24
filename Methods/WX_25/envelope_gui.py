@@ -4,14 +4,14 @@ import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import pandas as pd
 from datetime import datetime
-import sys
 
 # Import necessary classes and functions
 from ISIS_tune_control_functions import *
 from cpymad_closed_orbit_matching_functions import *
 from helper_functions import round_sig, synchrotron_energy_data, synchrotron_energy_df
-from cpymad_helpers import cpymad_plot_CO_sp, cpymad_plot_CO_sp, cpymad_madx_twiss, cpymad_start, cpymad_check_and_use_sequence, cpymad_plot_CO_plotly, cpymad_plot_CO_sp_plotly, cpymad_plot_CO_sp_plotly
-from Scripts.get_tune_values import *
+from cpymad_helpers import cpymad_madx_twiss, cpymad_start, cpymad_check_and_use_sequence
+from get_tune_values import *
+from plotly.subplots import make_subplots
 cpymad_logfile = 'cpymad_logfile.txt'
 sequence_name = 'synchrotron'
 madx = cpymad_start(cpymad_logfile)
