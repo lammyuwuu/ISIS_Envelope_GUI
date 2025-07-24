@@ -3,12 +3,15 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import pandas as pd
+from datetime import datetime
+import sys
 
 # Import necessary classes and functions
 from ISIS_tune_control_functions import *
 from cpymad_closed_orbit_matching_functions import *
 from helper_functions import round_sig, synchrotron_energy_data, synchrotron_energy_df
 from cpymad_helpers import cpymad_plot_CO_sp, cpymad_plot_CO_sp, cpymad_madx_twiss, cpymad_start, cpymad_check_and_use_sequence, cpymad_plot_CO_plotly, cpymad_plot_CO_sp_plotly, cpymad_plot_CO_sp_plotly
+from Scripts.get_values import *
 cpymad_logfile = 'cpymad_logfile.txt'
 sequence_name = 'synchrotron'
 madx = cpymad_start(cpymad_logfile)
@@ -19,7 +22,6 @@ madx.call(file=lattice_folder+'2023.strength')
 madx.call(file=lattice_folder+'ISIS.elements')
 madx.call(file=lattice_folder+'ISIS.sequence')
 cpymad_check_and_use_sequence(madx, cpymad_logfile, sequence_name)
-st.write(getValues().head())
 
 class cpymad_ErrorTableBuilder:
     def __init__(self, twiss_df):
