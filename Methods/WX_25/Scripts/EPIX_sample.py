@@ -19,7 +19,24 @@ def get_EPICS_Tune(cycletime:str):
     df = pd.DataFrame.from_dict(data)
     return df
 
+def get_EPICS_Beta(twiss, cycletime:str):
+    time_periods = [-.4, -.2, 0, .5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8.1, 9, 9.8, 10.1]
+    betx_array = twiss["betx"]
+    bety_array = twiss["bety"]
 
+    data = {
+        "PV":["", ""],
+        "Q_request":[],
+        "Last_change":["", ""]
+    }
+
+    for i in range(0, len(time_periods)):
+        if cycletime == time_periods[i]:
+            data["Q_request"].append(betx_array[i])
+            data["Q_request"].append(bety_array[i])
+    
+    df = pd.DataFrame.from_dict(data)
+    return df
     
 
 
