@@ -3,7 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import pandas as pd
-from datetime import datetime
 
 # Import necessary classes and functions
 from ISIS_tune_control_functions import *
@@ -20,7 +19,7 @@ madx.call(file=lattice_folder+'2023.strength')
 madx.call(file=lattice_folder+'ISIS.elements')
 madx.call(file=lattice_folder+'ISIS.sequence')
 cpymad_check_and_use_sequence(madx, cpymad_logfile, sequence_name)
-
+st.write(getValues().head())
 
 class cpymad_ErrorTableBuilder:
     def __init__(self, twiss_df):
