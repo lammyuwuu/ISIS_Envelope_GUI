@@ -646,7 +646,6 @@ def generate_orbit_plot(twiss_data, epsilon, title_suffix="", overlay_data=None,
 
     env_plus_y = twiss_data['y'] + sigma_y
     env_minus_y = twiss_data['y'] - sigma_y
-    st.write(twiss_data['x'].head())
 
     # Row 1: horizontal orbit
     fig.add_trace(go.Scatter(x=twiss_data['s'], y=twiss_data['x'] *1e3, mode='lines', name='Horizontal Closed Orbit', line=dict(color='black')), row=1, col=1)
@@ -727,7 +726,7 @@ corrector_values = {
 
 corrector_currents = {}
 
-# Convert the kicks to currents if necessary
+# FOR VD: Convert the kicks to currents if necessary
 corrector_currents_converted = convert_kicks_to_currents(corrector_currents, max_E, cycle_time)
 # Run MAD-X and get the closed orbit with the new corrector settings
 v_corrected_dict = {
@@ -750,6 +749,18 @@ v_corrector_currents_minus_0p4ms = {
  'r7vd1_kick': -38.1,
  'r9vd1_kick': 37.8}
 
+
+# FOR HD
+h_corrector_currents_minus_0p4ms = {
+ 'r0hd1_kick': 5,
+ 'r2hd1_kick': -5,
+ 'r3hd1_kick': 10,
+ 'r4hd1_kick': 2,
+ 'r5hd1_kick': -2,
+ 'r7hd1_kick': -22,
+ 'r9hd1_kick': 15}
+
+
 #TODO: Remove all corrections
 #TODO: Error table: choose file to edit 
 
@@ -758,13 +769,15 @@ v_corrector_currents_minus_0p4ms = {
 # apply_mis = st.sidebar.checkbox("Apply Misalignments")
 
 #User can enter their own beam emittance
-epsilon= float(st.sidebar.number_input("Enter Beam emittance in mrad (default is 300 x10^-6)", 
-                                       min_value = float(0), 
-                                       value = float(0.0003)))
+epsilon= float(st.sidebar.number_input("Enter Beam emittance in mrad x10⁻⁶ (default is 300 x10^-6)", 
+                                       min_value = float(50), 
+                                       max_value = float(500),
+                                       value = float(300)))
 if epsilon ==0:
-
     epsilon = 300 * 1e-6
-st.sidebar.write("The beam emittance is ", str(epsilon))
+else:
+    epsilon = epsilon * 1e-6
+st.sidebar.write("The beam emittance is ", str(round(epsilon, -int(floor(log10(abs(epsilon)))))))
 
 # dipole correctors (change orbit)
 apply_hd = st.sidebar.checkbox("Apply Horizontal Dipole") ##x
@@ -793,7 +806,8 @@ twiss_current = twiss_0.copy()
 if apply_vd:
     twiss_current = apply_correctors(madx, twiss_current, v_corrector_currents_minus_0p4ms, max_E, cycle_time_slider)
 
-
+if apply_hd:
+    twiss_current = apply_correctors(madx, twiss_current, h_corrector_currents_minus_0p4ms, max_E, cycle_time_slider)
 
 # if apply_mis and uploaded_mis_file:
 #     twiss_current = apply_misalignments(madx, twiss_current, uploaded_mis_file)
