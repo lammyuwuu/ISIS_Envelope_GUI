@@ -138,14 +138,14 @@ def getBetaValues() -> pd.DataFrame:
     }
 
     for i in range(0, len(output_df)):
-        output['x'].append(output_df["Qh"][i])
-        output['y'].append(output_df["Qv"][i])
+        output['x'].append(output_df["old_betx"][i])
+        output['y'].append(output_df["old_bety"][i])
         output['type'].append('set')
         output['time'].append(output_df["time"][i])
 
     for i in range(0, len(output_df)):
-        output['x'].append(output_df["Machine Qh"][i])
-        output['y'].append(output_df["Machine Qv"][i])
+        output['x'].append(output_df["betx"][i])
+        output['y'].append(output_df["bety"][i])
         output['type'].append('actual')
         output['time'].append(output_df["time"][i])
 

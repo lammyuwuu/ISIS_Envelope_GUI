@@ -811,7 +811,7 @@ if apply_hd:
     twiss_current = apply_correctors(madx, twiss_current, h_corrector_currents_minus_0p4ms, max_E, cycle_time_slider)
 
 if apply_tunes:
-    twiss_current = getValues()
+    twiss_current = getBetaValues()
 
 
 # if apply_mis and uploaded_mis_file:
