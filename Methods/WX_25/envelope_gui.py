@@ -583,7 +583,7 @@ def cpymad_set_isis_cycle_time(madx_instance, max_E, time):
     # Ensure time is a float and in valid increments
     if not isinstance(time, float) or time < 0.0 or time > 10.0 or (time * 10) % 5 != 0:
         print(f"Error: time must be a float between 0.0 and 10.0 in 0.5 increments. Received: {time}")
-        return
+        return time
 
     # Generate dataframe of synchrotron energy and related info
     energy_df = synchrotron_energy_df(max_E, intervals=20)
@@ -594,13 +594,15 @@ def cpymad_set_isis_cycle_time(madx_instance, max_E, time):
         pc = energy_df[energy_df['Time [ms]'] == time]['Momentum [GeV/c]'].iloc[0]
     except IndexError:
         print(f"Error: No matching time value found in energy dataframe for time = {time} ms")
-        return
+        return time
 
     # set the beam to this energy in cpymad
     madx_instance.input(f'beam, particle = proton, pc = {pc};')
 
     # print confirmation
     print(f'ISIS cpymad run, energy set to {energy} MeV, pc = {pc}')
+
+    return time
 
 # Streamlit title and description
 
@@ -692,7 +694,7 @@ st.write("""
 """)
 max_E = 800 # 800 MeV
 cycle_time = 0.0 
-cpymad_set_isis_cycle_time(madx, max_E, cycle_time)
+time_point = cpymad_set_isis_cycle_time(madx, max_E, cycle_time)
 twiss_0 = cpymad_madx_twiss(madx, cpymad_logfile, sequence_name)
 
 st.write("Twiss Data Preview:", twiss_0.head())
@@ -811,7 +813,19 @@ if apply_hd:
     twiss_current = apply_correctors(madx, twiss_current, h_corrector_currents_minus_0p4ms, max_E, cycle_time_slider)
 
 if apply_tunes:
-    twiss_current = getBetaValues()
+    df = getValues()
+    Qh = df['time' == time_point]['x']
+    Qv = df['time' == time_point]['y']
+    set_tune_DW(madx, cpymad_logfile, Qh, Qv, time_point)
+
+if apply_harmonics:
+    madx.globals['D7COS'] = get_harmonic("D7COS", time_point)
+    madx.globals['D8COS'] = get_harmonic("D8COS", time_point)
+    madx.globals['F8COS'] = get_harmonic("F8COS", time_point)
+    madx.globals['D7SIN'] = get_harmonic("D7SIN", time_point)
+    madx.globals['D8SIN'] = get_harmonic("D8SIN", time_point)
+    madx.globals['F8SIN'] = get_harmonic("F8SIN", time_point)
+
 
 
 # if apply_mis and uploaded_mis_file:
