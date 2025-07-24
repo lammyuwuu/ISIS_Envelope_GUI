@@ -770,15 +770,15 @@ h_corrector_currents_minus_0p4ms = {
 # apply_mis = st.sidebar.checkbox("Apply Misalignments")
 
 #User can enter their own beam emittance
-epsilon= float(st.sidebar.number_input("Enter Beam emittance in mrad x10⁻⁶ (default is 300 x10^-6)", 
+epsilonOrig= float(st.sidebar.number_input("Enter Beam emittance in mmmrad (default is 300 )", 
                                        min_value = float(50), 
                                        max_value = float(500),
                                        value = float(300)))
-if epsilon ==0:
+if epsilonOrig ==0:
     epsilon = 300 * 1e-6
 else:
-    epsilon = epsilon * 1e-6
-st.sidebar.write("The beam emittance is ", str(round(epsilon, -int(floor(log10(abs(epsilon)))))))
+    epsilon = epsilonOrig * 1e-6
+st.sidebar.write("The beam emittance is ", str(epsilonOrig), "mmmrad")
 
 # dipole correctors (change orbit)
 apply_hd = st.sidebar.checkbox("Apply Horizontal Dipole") ##x
