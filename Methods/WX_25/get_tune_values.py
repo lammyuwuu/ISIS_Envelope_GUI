@@ -81,7 +81,7 @@ def getValues() -> pd.DataFrame:
 #print(getValues())
 # output_df = tune_calculation_iterator(madx, tq_currents_df, cpymad_logfile)
 
-def getBetaValues() -> pd.DataFrame:
+def getBetaValues(twiss) -> pd.DataFrame:
 
     plot_folder = 'Tune_Plots'
     cpymad_logfile = 'cpymad_logfile.txt'
@@ -110,7 +110,7 @@ def getBetaValues() -> pd.DataFrame:
     bety_array = []
 
     for time in time_periods:
-        EPIX_df = get_EPICS_Beta(time)
+        EPIX_df = get_EPICS_Beta(twiss, time)
         betx_array.append(EPIX_df.loc[0, "Q_request"])
         bety_array.append(EPIX_df.loc[1, "Q_request"])
 
@@ -127,29 +127,44 @@ def getBetaValues() -> pd.DataFrame:
 
     # Finally! Let's get the real tunes
     output_df = tune_calculation_iterator(madx, tq_currents_df, cpymad_logfile)
-    #print(output_df)
+    print(output_df.head())
     print('Actual values found')
 
     output = {
-        "x":[],
-        "y":[],
+        "betx":[],
+        "bety":[],
         "type":[],
         "time":[]
     }
 
-    for i in range(0, len(output_df)):
-        output['x'].append(output_df["old_betx"][i])
-        output['y'].append(output_df["old_bety"][i])
-        output['type'].append('set')
-        output['time'].append(output_df["time"][i])
+    # for i in range(0, len(output_df)):
+    #     output['x'].append(output_df["old_betx"][i])
+    #     output['y'].append(output_df["old_bety"][i])
+    #     output['type'].append('set')
+    #     output['time'].append(output_df["time"][i])
 
     for i in range(0, len(output_df)):
-        output['x'].append(output_df["betx"][i])
-        output['y'].append(output_df["bety"][i])
-        output['type'].append('actual')
+        # output['betx'].append(output_df["x"][i])
+        # output['bety'].append(output_df["y"][i])
+        # output['type'].append('actual')
+        # output['time'].append(output_df["time"][i])
+        output['betx'].append(output_df["Qh"][i])
+        output['bety'].append(output_df["Qv"][i])
+        output['type'].append('new beta after harmonics')
         output['time'].append(output_df["time"][i])
+
+
+    # for i in range(len(output_df)):
+    #     output['betx'].append(output_df["x"][i])
+    #     output['bety'].append(output_df["y"][i])
+    #     output['type'].append("new beta after harmonics")
+    #     output['time'].append(output_df["time"][i])
+
+    # output_extra = pd.DataFrame(output)
+    # output_df = pd.concat([output_df.reset_index(drop=True), output_extra[["betx", "bety", "type"]]], axis=1)
+
 
     df = pd.DataFrame(output)
-
+    print(df.head())
     return df
 
