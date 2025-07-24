@@ -654,13 +654,13 @@ def generate_orbit_plot(twiss_data, title_suffix="", overlay_data=None, xlimits=
     # Row 1: horizontal orbit
     fig.add_trace(go.Scatter(x=twiss_data['s'], y=twiss_data['x'] *1e3, mode='lines', name='Horizontal Closed Orbit', line=dict(color='black')), row=1, col=1)
     # Row 1: Envelope
-    fig.add_trace(go.Scatter(x=twiss_data['s'], y=env_plus_x*1e3, mode='lines', name='Envelope x+', line=dict(color='orange')), row=1, col=1)
-    fig.add_trace(go.Scatter(x=twiss_data['s'], y=env_minus_x*1e3, mode='lines', name='Envelope x-', line=dict(color='orange')), row=1, col=1)
+    fig.add_trace(go.Scatter(x=twiss_data['s'], y=env_plus_x*1e3, mode='lines', name='Envelope', line=dict(color='orange')), row=1, col=1)
+    fig.add_trace(go.Scatter(x=twiss_data['s'], y=env_minus_x*1e3, mode='lines', line=dict(color='orange')), row=1, col=1)
     # Row 2: vertical orbit (with optional overlay)
     fig.add_trace(go.Scatter(x=twiss_data['s'], y=twiss_data['y'] *1e3, mode='lines', name='Vertical Closed Orbit', line=dict(color='black')), row=2, col=1)
     # Row 2: Envelope
-    fig.add_trace(go.Scatter(x=twiss_data['s'], y=env_plus_y*1e3, mode='lines', name='Envelope x+', line=dict(color='orange')), row=2, col=1)
-    fig.add_trace(go.Scatter(x=twiss_data['s'], y=env_minus_y*1e3, mode='lines', name='Envelope x-', line=dict(color='orange')), row=2, col=1)
+    fig.add_trace(go.Scatter(x=twiss_data['s'], y=env_plus_y*1e3, mode='lines', line=dict(color='orange')), row=2, col=1)
+    fig.add_trace(go.Scatter(x=twiss_data['s'], y=env_minus_y*1e3, mode='lines', line=dict(color='orange')), row=2, col=1)
 
 
     if overlay_data is not None:
@@ -783,14 +783,11 @@ xlimits = [16.336282 * 4, 16.336282 * 5] if restrict_xaxis else None
 
 twiss_current = twiss_0.copy()
 
-
-
 ## Vertical corrections (not just a straight line)
-if apply_hd:
+if apply_vd:
     twiss_current = apply_correctors(madx, twiss_current, v_corrector_currents_minus_0p4ms, max_E, cycle_time_slider)
 
-if apply_vd:
-    twiss_current = apply_correctors(madx, twiss_current, y_corrector_currents_minus_0p4ms, max_E, cycle_time_slider)
+
 
 # if apply_mis and uploaded_mis_file:
 #     twiss_current = apply_misalignments(madx, twiss_current, uploaded_mis_file)
