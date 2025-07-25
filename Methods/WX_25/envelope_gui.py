@@ -14,16 +14,16 @@ from get_tune_values import *
 from plotly.subplots import make_subplots
 from plot_tune import *
 
-cpymad_logfile = 'cpymad_logfile.txt'
-sequence_name = 'synchrotron'
-madx = cpymad_start(cpymad_logfile)
-lattice_folder = '../../Lattice_Files/00_Simplified_Lattice/'
-madx.call(file=lattice_folder+'ISIS.injected_beam')
-madx.call(file=lattice_folder+'ISIS.strength')
-madx.call(file=lattice_folder+'2023.strength')
-madx.call(file=lattice_folder+'ISIS.elements')
-madx.call(file=lattice_folder+'ISIS.sequence')
-cpymad_check_and_use_sequence(madx, cpymad_logfile, sequence_name)
+def cpymad_get_aperture(madx_instance, cpymad_logfile, sequence_name, file_out=None):
+    madx_instance.input('select, flag=aperture, column=name, n1, n1x_m, n1y_m, apertype, rtol, xtol, ytol, s, betx, bety, dx, dy, x, y, on_ap, on_elem, spec;')
+    twiss_df_0 = cpymad_madx_twiss_nocheck(madx_instance, cpymad_logfile, sequence_name)
+    
+    if file_out is None: file_out = sequence_name +'_madx_aperture.tfs'
+        
+    madx_instance.input('set, format="12.12f"')
+    madx_command = str('aperture, range=#s/#e, file='+file_out+';')
+    madx_instance.input(madx_command)
+
 
 class cpymad_ErrorTableBuilder:
     def __init__(self, twiss_df):
@@ -623,7 +623,7 @@ def apply_misalignments(madx, twiss_input, misalignments_file):
     cpymad_apply_and_check_error_table(madx, error_file, error_table_builder.error_df)
     return cpymad_madx_twiss_nocheck(madx, cpymad_logfile, sequence_name)
 
-def generate_orbit_plot(twiss_data, epsilon, title_suffix="", overlay_data=None, xlimits=None):
+def generate_orbit_plot(madx_instance, twiss_data, epsilon, title_suffix="", overlay_data=None, xlimits=None):
     qx = madx.table.summ.q1[0]
     qy = madx.table.summ.q2[0]
     plot_title = f"{sequence_name} Q1={qx:.3f}, Q2={qy:.3f} {title_suffix}"
@@ -652,16 +652,23 @@ def generate_orbit_plot(twiss_data, epsilon, title_suffix="", overlay_data=None,
     env_minus_y = twiss_data['y'] - sigma_y
 
     # Row 1: horizontal orbit
-    fig.add_trace(go.Scatter(x=twiss_data['s'], y=twiss_data['x'] *1e3, mode='lines', name='Horizontal Closed Orbit', line=dict(color='black')), row=1, col=1)
+    fig.add_trace(go.Scatter(x=twiss_data['s'], y=twiss_data['x'] *1e3, mode='lines', name='Horizontal Closed Orbit', line=dict(color='red')), row=1, col=1)
     # Row 1: Envelope
     fig.add_trace(go.Scatter(x=twiss_data['s'], y=env_plus_x*1e3, mode='lines', name='Envelope', line=dict(color='orange')), row=1, col=1)
     fig.add_trace(go.Scatter(x=twiss_data['s'], y=env_minus_x*1e3, mode='lines', name='Envelope',line=dict(color='orange')), row=1, col=1)
+
+    #Row 1: Aperture
+    # fig.add_trace(go.Scatter(x=madx_instance.table.aperture.s, y=madx_instance.table.aperture.aper_1*1e3, mode='lines', name='Aperture', line=dict(color='pink')), row=1, col=1)
+    # fig.add_trace(go.Scatter(x=madx_instance.table.aperture.s, y=-madx_instance.table.aperture.aper_1*1e3, mode='lines', name='Aperture', line=dict(color='pink')), row=1, col=1)
+
     # Row 2: vertical orbit (with optional overlay)
-    fig.add_trace(go.Scatter(x=twiss_data['s'], y=twiss_data['y'] *1e3, mode='lines', name='Vertical Closed Orbit', line=dict(color='black')), row=2, col=1)
+    fig.add_trace(go.Scatter(x=twiss_data['s'], y=twiss_data['y'] *1e3, mode='lines', name='Vertical Closed Orbit', line=dict(color='blue')), row=2, col=1)
     # Row 2: Envelope
     fig.add_trace(go.Scatter(x=twiss_data['s'], y=env_plus_y*1e3, mode='lines', name='Envelope', line=dict(color='orange')), row=2, col=1)
     fig.add_trace(go.Scatter(x=twiss_data['s'], y=env_minus_y*1e3, mode='lines', name='Envelope', line=dict(color='orange')), row=2, col=1)
-
+    #Row 2: Aperture
+    # fig.add_trace(go.Scatter(x=madx_instance.table.aperture.s, y=madx_instance.table.aperture.aper_2*1e3, mode='lines', name='Aperture', line=dict(color='pink')), row=2, col=1)
+    # fig.add_trace(go.Scatter(x=madx_instance.table.aperture.s, y=-madx_instance.table.aperture.aper_2*1e3, mode='lines', name='Aperture', line=dict(color='pink')), row=2, col=1)
 
     if overlay_data is not None:
         fig.add_trace(go.Scatter(
@@ -685,21 +692,35 @@ def generate_orbit_plot(twiss_data, epsilon, title_suffix="", overlay_data=None,
 
     st.plotly_chart(fig)
 
+# Start GUI
+
+cpymad_logfile = 'cpymad_logfile.txt'
+sequence_name = 'synchrotron'
+madx = cpymad_start(cpymad_logfile)
+lattice_folder = '../../Lattice_Files/04_New_Harmonics/'
+madx.call(file=lattice_folder+'ISIS.injected_beam')
+madx.call(file=lattice_folder+'ISIS.strength')
+madx.call(file=lattice_folder+'2023.strength')
+madx.call(file=lattice_folder+'ISIS.elements')
+madx.call(file=lattice_folder+'ISIS.sequence')
+madx.call(file = lattice_folder+'ISIS.aperature')
+cpymad_check_and_use_sequence(madx, cpymad_logfile, sequence_name)
+
 #Loading twiss dataset, initialisation of cycle time and energy
 plot_folder = 'Orbit_Correction_Plots'
 make_directory(plot_folder)
-st.title("BPM Simulation for Accelerator Physics")
+st.title("Beam Envelope GUI")
 st.write("""
-    This application allows you to simulate and visualize the beam position monitor (BPM) results in an accelerator. 
-    You can upload your BPM data, adjust corrector settings, and visualize the orbit data.
+    This application allows you to simulate and visualize the beam envelope and aperture
 """)
 max_E = 800 # 800 MeV
 cycle_time = 0.0 
 
 twiss_0 = cpymad_madx_twiss(madx, cpymad_logfile, sequence_name)
+cpymad_get_aperture(madx, cpymad_logfile, sequence_name, 'aperture_test.tfs')
 
 st.write("Twiss Data Preview:", twiss_0.head())
-
+# st.write("Aperture Data Preview", madx.table.aperture.aper_1)
 
 ##Logo 
 import base64
@@ -824,12 +845,12 @@ if apply_tunes:
     set_tune_DW(madx, cpymad_logfile, Qh, Qv, time_point)
 
 if apply_harmonics:
-    madx.globals['D7COS'] = get_harmonic("D7COS", time_point)
-    madx.globals['D8COS'] = get_harmonic("D8COS", time_point)
-    madx.globals['F8COS'] = get_harmonic("F8COS", time_point)
-    madx.globals['D7SIN'] = get_harmonic("D7SIN", time_point)
-    madx.globals['D8SIN'] = get_harmonic("D8SIN", time_point)
-    madx.globals['F8SIN'] = get_harmonic("F8SIN", time_point)
+    madx.globals['D7COS'] = 10 #get_harmonic("D7COS", time_point)
+    madx.globals['D8COS'] = 10 #get_harmonic("D8COS", time_point)
+    madx.globals['F8COS'] = 10 #get_harmonic("F8COS", time_point)
+    madx.globals['D7SIN'] = 10 #get_harmonic("D7SIN", time_point)
+    madx.globals['D8SIN'] = 10 #get_harmonic("D8SIN", time_point)
+    madx.globals['F8SIN'] = 10 #get_harmonic("F8SIN", time_point)
 
 
 
@@ -896,4 +917,4 @@ if apply_harmonics:
 
 # Generate the main plot
 # generate_orbit_plot(twiss_current, title_suffix="", overlay_data=bpm_overlay, xlimits=xlimits)
-generate_orbit_plot(twiss_current, epsilon, title_suffix="", xlimits=xlimits)
+generate_orbit_plot(madx, twiss_current, epsilon, title_suffix="", xlimits=xlimits)
