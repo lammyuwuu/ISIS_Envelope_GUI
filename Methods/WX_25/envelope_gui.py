@@ -655,12 +655,12 @@ def generate_orbit_plot(twiss_data, epsilon, title_suffix="", overlay_data=None,
     fig.add_trace(go.Scatter(x=twiss_data['s'], y=twiss_data['x'] *1e3, mode='lines', name='Horizontal Closed Orbit', line=dict(color='black')), row=1, col=1)
     # Row 1: Envelope
     fig.add_trace(go.Scatter(x=twiss_data['s'], y=env_plus_x*1e3, mode='lines', name='Envelope', line=dict(color='orange')), row=1, col=1)
-    fig.add_trace(go.Scatter(x=twiss_data['s'], y=env_minus_x*1e3, mode='lines', line=dict(color='orange')), row=1, col=1)
+    fig.add_trace(go.Scatter(x=twiss_data['s'], y=env_minus_x*1e3, mode='lines', name='Envelope',line=dict(color='orange')), row=1, col=1)
     # Row 2: vertical orbit (with optional overlay)
     fig.add_trace(go.Scatter(x=twiss_data['s'], y=twiss_data['y'] *1e3, mode='lines', name='Vertical Closed Orbit', line=dict(color='black')), row=2, col=1)
     # Row 2: Envelope
-    fig.add_trace(go.Scatter(x=twiss_data['s'], y=env_plus_y*1e3, mode='lines', line=dict(color='orange')), row=2, col=1)
-    fig.add_trace(go.Scatter(x=twiss_data['s'], y=env_minus_y*1e3, mode='lines', line=dict(color='orange')), row=2, col=1)
+    fig.add_trace(go.Scatter(x=twiss_data['s'], y=env_plus_y*1e3, mode='lines', name='Envelope', line=dict(color='orange')), row=2, col=1)
+    fig.add_trace(go.Scatter(x=twiss_data['s'], y=env_minus_y*1e3, mode='lines', name='Envelope', line=dict(color='orange')), row=2, col=1)
 
 
     if overlay_data is not None:
@@ -695,7 +695,7 @@ st.write("""
 """)
 max_E = 800 # 800 MeV
 cycle_time = 0.0 
-time_point = cpymad_set_isis_cycle_time(madx, max_E, cycle_time)
+
 twiss_0 = cpymad_madx_twiss(madx, cpymad_logfile, sequence_name)
 
 st.write("Twiss Data Preview:", twiss_0.head())
@@ -716,6 +716,12 @@ with open("ukri-stfc-square-logo.png", "rb") as f:
 
 # Input fields for corrector settings
 st.sidebar.header("Corrector Settings")
+
+# Simulation Controls
+max_E = 800
+cycle_time_slider = st.sidebar.slider("Cycle Time (ms)", min_value=0.0, max_value=10.0, step=0.5, value=0.0)
+
+time_point = cpymad_set_isis_cycle_time(madx, max_E, cycle_time_slider)
 
 # Corrector input: Default current values
 corrector_values = {
@@ -796,10 +802,6 @@ uploaded_mis_file = None
 
 uploaded_bpm_file = st.sidebar.file_uploader("Upload BPM fit results (.txt)", type=["txt"])
 
-# Simulation Controls
-max_E = 800
-cycle_time_slider = st.sidebar.slider("Cycle Time (ms)", min_value=0.0, max_value=10.0, step=0.5, value=0.0)
-
 # Optional xlimit restriction
 restrict_xaxis = st.sidebar.checkbox("Restrict x-axis domain to 1 super-period")
 xlimits = [16.336282 * 4, 16.336282 * 5] if restrict_xaxis else None
@@ -815,8 +817,10 @@ if apply_hd:
 
 if apply_tunes:
     df = getValues()
-    Qh = df['time'==time_point]['x']
-    Qv = df['time'==time_point]['y']
+    Qh = df[df["time"] == time_point]["x"].iloc[0]
+    st.write(Qh)
+    Qv = df[df["time"] == time_point]["y"].iloc[0]
+    st.write(Qv)
     set_tune_DW(madx, cpymad_logfile, Qh, Qv, time_point)
 
 if apply_harmonics:
