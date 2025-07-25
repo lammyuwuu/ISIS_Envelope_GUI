@@ -843,7 +843,7 @@ if apply_tunes:
     Qv = df[df["time"] == time_point]["y"].iloc[0]
     st.write(Qv)
     set_tune_DW(madx, cpymad_logfile, Qh, Qv, time_point)
-
+##Not working
 if apply_harmonics:
     madx.globals['D7COS'] = 10 #get_harmonic("D7COS", time_point)
     madx.globals['D8COS'] = 10 #get_harmonic("D8COS", time_point)
